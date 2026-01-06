@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
 import 'navigation/app_router.dart';
 
@@ -7,12 +9,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(  // CHANGED: MaterialApp → GetMaterialApp
       title: 'Paperless Store',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      onGenerateRoute: AppRouter.generateRoute,
+      getPages: AppRoutes.routes,  // GetX routes
       initialRoute: '/',
+      // onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

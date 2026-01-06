@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/api_service.dart';
@@ -15,16 +16,14 @@ import '../../utils/language_utils.dart';
 import '../../utils/document_upload_utils.dart';
 import '../../utils/registration_service.dart';
 import 'simple_location_picker.dart';
+import '../controllers/register_controller.dart';
 
-
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
-
-  @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends State<RegisterScreen> {
+class RegisterScreen extends StatelessWidget {
+  RegisterScreen({Key? key}) : super(key: key);
+  
+  // GetX Controller
+  final RegisterController registerController = Get.put(RegisterController());
+  
   final _fullNameController = TextEditingController();
   final _shopNameController = TextEditingController();
   final _proprietorNameController = TextEditingController();
@@ -36,14 +35,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   final _locationController = TextEditingController();
 
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-  bool _isLoading = false;
-  String _selectedLanguage = 'English (EN)';
-  String _selectedFlag = '🇺🇸';
-  String? _selectedShopType;
-  String? _tradeLicenseDocument;
-  File? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
   final List<String> _shopTypes = [
@@ -52,23 +43,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _locationController.addListener(() => setState(() {}));
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: RegisterAppBar(
-        selectedLanguage: _selectedLanguage,
-        selectedFlag: _selectedFlag,
-        onBackPressed: () => Navigator.pop(context),
-        onLanguagePressed: _showLanguageDialog,
-        onLanguageDialog: _showLanguageDialog,
+        selectedLanguage: registerController.selectedLanguage.value,
+        selectedFlag: registerController.selectedFlag.value,
+        onBackPressed: () => Get.back(),
+        onLanguagePressed: () => _showLanguageDialog(context),
+        onLanguageDialog: () => _showLanguageDialog(context),
       ),
-      body: _isLoading
+      body: Obx(() => registerController.isLoading.value
           ? _buildLoadingScreen()
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -76,31 +61,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ProfileImagePicker(
-                    selectedLanguage: _selectedLanguage,
-                    profileImage: _profileImage,
-                    onImagePressed: _showImageSourceDialog,
-                    onRemoveImage: () => setState(() => _profileImage = null),
+                    selectedLanguage: registerController.selectedLanguage.value,
+                    profileImage: registerController.profileImage.value,
+                    onImagePressed: () => _showImageSourceDialog(context),
+                    onRemoveImage: () => registerController.profileImage.value = null,
                   ),
                   const SizedBox(height: 24),
                   _buildFormFields(),
                   const SizedBox(height: 24),
                   ShopTypeDropdown(
-                    selectedLanguage: _selectedLanguage,
-                    selectedShopType: _selectedShopType,
+                    selectedLanguage: registerController.selectedLanguage.value,
+                    selectedShopType: registerController.selectedShopType.value,
                     shopTypes: _shopTypes,
-                    onChanged: (value) => setState(() => _selectedShopType = value),
+                    onChanged: (value) => registerController.selectedShopType.value = value,
                   ),
                   const SizedBox(height: 20),
-                  _buildAddressFields(),
+                  _buildAddressFields(context),
                   const SizedBox(height: 24),
                   const Divider(color: Color(0xFFEAECF0)),
                   const SizedBox(height: 24),
                   TradeLicenseSection(
-                    selectedLanguage: _selectedLanguage,
+                    selectedLanguage: registerController.selectedLanguage.value,
                     licenseController: _tradeLicenseController,
-                    licenseDocument: _tradeLicenseDocument,
-                    onDocumentUpload: _showDocumentSourceDialog,
-                    onDocumentRemove: () => setState(() => _tradeLicenseDocument = null),
+                    licenseDocument: registerController.tradeLicenseDocument.value,
+                    onDocumentUpload: () => _showDocumentSourceDialog(context),
+                    onDocumentRemove: () => registerController.tradeLicenseDocument.value = null,
                   ),
                   const SizedBox(height: 24),
                   const Divider(color: Color(0xFFEAECF0)),
@@ -108,26 +93,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _buildPasswordFields(),
                   const SizedBox(height: 40),
                   RegisterButton(
-                    selectedLanguage: _selectedLanguage,
-                    isLoading: _isLoading,
+                    selectedLanguage: registerController.selectedLanguage.value,
+                    isLoading: registerController.isLoading.value,
                     onPressed: _register,
                   ),
                   const SizedBox(height: 20),
                 ],
               ),
             ),
+      ),
     );
   }
 
   Widget _buildLoadingScreen() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Registering... Saving to JSON'),
-          Text('(Working offline - No server needed)', 
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Obx(() => Text(
+            registerController.selectedLanguage.value == 'বাংলা' 
+                ? 'নিবন্ধন করা হচ্ছে... JSON এ সংরক্ষণ করা হচ্ছে'
+                : 'Registering... ',
+          )),
+          const Text('(Working offline - No server needed)', 
                style: TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
@@ -135,70 +125,70 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildFormFields() {
-    return Column(
+    return Obx(() => Column(
       children: [
         RegisterFormField(
           controller: _fullNameController,
-          label: _selectedLanguage == 'বাংলা' ? 'পুরো নাম' : 'Full Name',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার পুরো নাম লিখুন' : 'Enter your full name',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পুরো নাম' : 'Full Name',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার পুরো নাম লিখুন' : 'Enter your full name',
           icon: Icons.person_outline,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _shopNameController,
-          label: _selectedLanguage == 'বাংলা' ? 'দোকানের নাম' : 'Shop Name',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার দোকানের নাম লিখুন' : 'Enter your shop name',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের নাম' : 'Shop Name',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার দোকানের নাম লিখুন' : 'Enter your shop name',
           icon: Icons.store,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _proprietorNameController,
-          label: _selectedLanguage == 'বাংলা' ? 'মালিকের নাম' : 'Proprietor Name',
-          hint: _selectedLanguage == 'বাংলা' ? 'মালিকের নাম লিখুন' : 'Enter proprietor name',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'মালিকের নাম' : 'Proprietor Name',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'মালিকের নাম লিখুন' : 'Enter proprietor name',
           icon: Icons.business_center,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _phoneController,
-          label: _selectedLanguage == 'বাংলা' ? 'ফোন নম্বর' : 'Phone Number',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার ফোন নম্বর লিখুন' : 'Enter your phone number',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'ফোন নম্বর' : 'Phone Number',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার ফোন নম্বর লিখুন' : 'Enter your phone number',
           icon: Icons.phone,
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _emailController,
-          label: _selectedLanguage == 'বাংলা' ? 'ইমেইল' : 'Email',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার ইমেইল লিখুন' : 'Enter your email',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'ইমেইল' : 'Email',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার ইমেইল লিখুন' : 'Enter your email',
           icon: Icons.email,
           keyboardType: TextInputType.emailAddress,
         ),
       ],
-    );
+    ));
   }
 
-  Widget _buildAddressFields() {
-    return Column(
+  Widget _buildAddressFields(BuildContext context) {
+    return Obx(() => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RegisterFormField(
           controller: _storeAddressController,
-          label: _selectedLanguage == 'বাংলা' ? 'দোকানের ঠিকানা' : 'Store Address',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার দোকানের সম্পূর্ণ ঠিকানা লিখুন' : 'Enter your complete store address',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের ঠিকানা' : 'Store Address',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার দোকানের সম্পূর্ণ ঠিকানা লিখুন' : 'Enter your complete store address',
           icon: Icons.location_on,
           maxLines: 3,
         ),
         const SizedBox(height: 20),
         GestureDetector(
-          onTap: _openLocationPicker,
+          onTap: () => _openLocationPicker(context),
           child: TextField(
             readOnly: true,
             controller: _locationController,
             decoration: InputDecoration(
-              labelText: _selectedLanguage == 'বাংলা' ? 'দোকানের অবস্থান' : 'Shop Location',
+              labelText: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের অবস্থান' : 'Shop Location',
               labelStyle: const TextStyle(color: Color(0xFF667085)),
               floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-              hintText: _selectedLanguage == 'বাংলা' ? 'অবস্থান নির্বাচন করুন' : 'Select Location',
+              hintText: registerController.selectedLanguage.value == 'বাংলা' ? 'অবস্থান নির্বাচন করুন' : 'Select Location',
               hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -215,92 +205,96 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildPasswordFields() {
-    return Column(
+    return Obx(() => Column(
       children: [
         RegisterFormField(
           controller: _passwordController,
-          label: _selectedLanguage == 'বাংলা' ? 'পাসওয়ার্ড' : 'Password',
-          hint: _selectedLanguage == 'বাংলা' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড' : 'Password',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password',
           icon: Icons.lock,
           isPassword: true,
-          isPasswordVisible: _isPasswordVisible,
-          onPasswordVisibilityToggle: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+          isPasswordVisible: registerController.isPasswordVisible.value,
+          onPasswordVisibilityToggle: () => registerController.isPasswordVisible.value = !registerController.isPasswordVisible.value,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _confirmPasswordController,
-          label: _selectedLanguage == 'বাংলা' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password',
-          hint: _selectedLanguage == 'বাংলা' ? 'পাসওয়ার্ড আবার লিখুন' : 'Re-enter your password',
+          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password',
+          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড আবার লিখুন' : 'Re-enter your password',
           icon: Icons.lock,
           isPassword: true,
-          isPasswordVisible: _isConfirmPasswordVisible,
-          onPasswordVisibilityToggle: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+          isPasswordVisible: registerController.isConfirmPasswordVisible.value,
+          onPasswordVisibilityToggle: () => registerController.isConfirmPasswordVisible.value = !registerController.isConfirmPasswordVisible.value,
         ),
       ],
-    );
+    ));
   }
 
-  void _showImageSourceDialog() {
+  void _showImageSourceDialog(BuildContext context) {
     ImagePickerUtils.showImageSourceDialog(
       context: context,
-      language: _selectedLanguage,
-      onCameraPressed: _pickImageFromCamera,
-      onGalleryPressed: _pickImageFromGallery,
+      language: registerController.selectedLanguage.value,
+      onCameraPressed: () => _pickImageFromCamera(context),
+      onGalleryPressed: () => _pickImageFromGallery(context),
     );
   }
 
-  Future<void> _pickImageFromCamera() async {
+  Future<void> _pickImageFromCamera(BuildContext context) async {
     try {
-      final image = await ImagePickerUtils.pickImageFromCamera(_picker, _selectedLanguage);
+      final image = await ImagePickerUtils.pickImageFromCamera(_picker, registerController.selectedLanguage.value);
       if (image != null) {
-        setState(() => _profileImage = image);
-        FormUtils.showMessage(
-          context: context,
-          message: _selectedLanguage == 'বাংলা' 
+        registerController.profileImage.value = image;
+        Get.snackbar(
+          registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
+          registerController.selectedLanguage.value == 'বাংলা' 
               ? 'ছবি সফলভাবে তোলা হয়েছে' 
               : 'Image captured successfully',
-          color: Colors.green,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
         );
       }
     } catch (e) {
-      FormUtils.showMessage(
-        context: context,
-        message: e.toString(),
-        color: Colors.red,
+      Get.snackbar(
+        registerController.selectedLanguage.value == 'বাংলা' ? 'ত্রুটি' : 'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
       );
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
+  Future<void> _pickImageFromGallery(BuildContext context) async {
     try {
-      final image = await ImagePickerUtils.pickImageFromGallery(_picker, _selectedLanguage);
+      final image = await ImagePickerUtils.pickImageFromGallery(_picker, registerController.selectedLanguage.value);
       if (image != null) {
-        setState(() => _profileImage = image);
-        FormUtils.showMessage(
-          context: context,
-          message: _selectedLanguage == 'বাংলা' 
+        registerController.profileImage.value = image;
+        Get.snackbar(
+          registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
+          registerController.selectedLanguage.value == 'বাংলা' 
               ? 'ছবি সফলভাবে নির্বাচিত হয়েছে' 
               : 'Image selected successfully',
-          color: Colors.green,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
         );
       }
     } catch (e) {
-      FormUtils.showMessage(
-        context: context,
-        message: e.toString(),
-        color: Colors.red,
+      Get.snackbar(
+        registerController.selectedLanguage.value == 'বাংলা' ? 'ত্রুটি' : 'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
       );
     }
   }
 
-  void _showDocumentSourceDialog() {
+  void _showDocumentSourceDialog(BuildContext context) {
     DocumentUploadUtils.showDocumentSourceDialog(
       context: context,
-      language: _selectedLanguage,
+      language: registerController.selectedLanguage.value,
       onCameraPressed: () => _simulateDocumentUpload('trade_license_camera.jpg'),
       onGalleryPressed: () => _simulateDocumentUpload('trade_license_gallery.jpg'),
       onFilePressed: () => _simulateDocumentUpload('trade_license_document.pdf'),
@@ -308,125 +302,97 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _simulateDocumentUpload(String fileName) {
-    setState(() => _tradeLicenseDocument = fileName);
-    FormUtils.showMessage(
-      context: context,
-      message: _selectedLanguage == 'বাংলা' 
+    registerController.tradeLicenseDocument.value = fileName;
+    Get.snackbar(
+      registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
+      registerController.selectedLanguage.value == 'বাংলা' 
           ? 'ডকুমেন্ট আপলোড করা হয়েছে: $fileName' 
           : 'Document uploaded: $fileName',
-      color: Colors.green,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
     );
   }
 
-  void _openLocationPicker() {
-    showDialog(
-      context: context,
-      builder: (context) => SimpleLocationPicker(
-        selectedLanguage: _selectedLanguage,
-        onLocationSelected: (location) {
-          setState(() => _locationController.text = location);
-        },
+  void _openLocationPicker(BuildContext context) {
+  // Test if the problem is in SimpleLocationPicker
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Obx(() => Text(
+        registerController.selectedLanguage.value == 'বাংলা' 
+          ? 'অবস্থান নির্বাচন করুন' 
+          : 'Select Location'
+      )),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Dhaka, Bangladesh'),
+            onTap: () {
+              _locationController.text = 'Dhaka, Bangladesh';
+              Navigator.pop(context); // Close dialog
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Chittagong, Bangladesh'),
+            onTap: () {
+              _locationController.text = 'Chittagong, Bangladesh';
+              Navigator.pop(context); // Close dialog
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Sylhet, Bangladesh'),
+            onTap: () {
+              _locationController.text = 'Sylhet, Bangladesh';
+              Navigator.pop(context); // Close dialog
+            },
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  void _showLanguageDialog() {
+  void _showLanguageDialog(BuildContext context) {
     LanguageUtils.showLanguageDialog(
       context: context,
-      currentLanguage: _selectedLanguage,
-      onLanguageChanged: (language) => setState(() => _selectedLanguage = language),
-      onFlagChanged: (flag) => setState(() => _selectedFlag = flag),
+      currentLanguage: registerController.selectedLanguage.value,
+      onLanguageChanged: (language) => registerController.selectedLanguage.value = language,
+      onFlagChanged: (flag) => registerController.selectedFlag.value = flag,
     );
   }
 
   Future<void> _register() async {
-    final validation = RegisterUtils.validateRegistration(
-      fullName: _fullNameController.text,
-      shopName: _shopNameController.text,
-      proprietorName: _proprietorNameController.text,
-      phone: _phoneController.text,
-      email: _emailController.text,
-      shopType: _selectedShopType,
-      storeAddress: _storeAddressController.text,
-      location: _locationController.text,
-      password: _passwordController.text,
-      confirmPassword: _confirmPasswordController.text,
-      selectedLanguage: _selectedLanguage,
-    );
-
-    if (validation['valid'] == 'false') {
-      FormUtils.showMessage(
-        context: context,
-        message: validation['message']!,
-        color: Colors.orange,
+    // Simple validation
+    if (_fullNameController.text.isEmpty || 
+        _emailController.text.isEmpty || 
+        _passwordController.text.isEmpty) {
+      Get.snackbar(
+        registerController.selectedLanguage.value == 'বাংলা' ? 'সতর্কতা' : 'Warning',
+        registerController.selectedLanguage.value == 'বাংলা' 
+            ? 'দয়া করে প্রয়োজনীয় তথ্য পূরণ করুন' 
+            : 'Please fill required information',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
       );
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    final registrationData = RegistrationService.prepareRegistrationData(
+    // Use GetX controller to handle registration
+    await registerController.register(
       fullName: _fullNameController.text,
       shopName: _shopNameController.text,
       proprietorName: _proprietorNameController.text,
       phone: _phoneController.text,
       email: _emailController.text,
-      shopType: _selectedShopType,
       storeAddress: _storeAddressController.text,
       location: _locationController.text,
       tradeLicense: _tradeLicenseController.text,
-      tradeLicenseDocument: _tradeLicenseDocument,
       password: _passwordController.text,
-      profileImagePath: _profileImage?.path,
+      confirmPassword: _confirmPasswordController.text,
     );
-
-    await RegistrationService.registerUser(
-      context: context,
-      registrationData: registrationData,
-      language: _selectedLanguage,
-      onSuccess: () => Navigator.pushReplacementNamed(context, '/login'),
-      clearForm: _clearForm,
-    );
-
-    setState(() => _isLoading = false);
-  }
-
-  void _clearForm() {
-    FormUtils.clearForm(
-      controllers: [
-        _fullNameController,
-        _shopNameController,
-        _proprietorNameController,
-        _phoneController,
-        _emailController,
-        _storeAddressController,
-        _tradeLicenseController,
-        _passwordController,
-        _confirmPasswordController,
-        _locationController,
-      ],
-      onClear: () {
-        setState(() {
-          _selectedShopType = null;
-          _tradeLicenseDocument = null;
-          _profileImage = null;
-        });
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _fullNameController.dispose();
-    _shopNameController.dispose();
-    _proprietorNameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _storeAddressController.dispose();
-    _tradeLicenseController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _locationController.dispose();
-    super.dispose();
   }
 }
