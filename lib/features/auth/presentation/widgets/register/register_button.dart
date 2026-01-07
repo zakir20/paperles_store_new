@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 
 class RegisterButton extends StatelessWidget {
   final String selectedLanguage;
@@ -35,7 +36,7 @@ class RegisterButton extends StatelessWidget {
                 ),
               )
             : Text(
-                selectedLanguage == 'বাংলা' ? 'নিবন্ধন করুন' : 'Register',
+                'register'.tr, // CHANGED: Already exists from login
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

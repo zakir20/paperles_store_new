@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 
 class TradeLicenseSection extends StatelessWidget {
   final String selectedLanguage;
@@ -22,7 +23,7 @@ class TradeLicenseSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          selectedLanguage == 'বাংলা' ? 'ট্রেড লাইসেন্স' : 'Trade License',
+          'tradeLicense'.tr, // CHANGED
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -31,7 +32,7 @@ class TradeLicenseSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          selectedLanguage == 'বাংলা' ? 'ঐচ্ছিক' : 'Optional',
+          'optional'.tr, // CHANGED
           style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF667085),
@@ -49,10 +50,10 @@ class TradeLicenseSection extends StatelessWidget {
     return TextField(
       controller: licenseController,
       decoration: InputDecoration(
-        labelText: selectedLanguage == 'বাংলা' ? 'ট্রেড লাইসেন্স নম্বর' : 'Trade License Number',
+        labelText: 'tradeLicenseNumber'.tr, // CHANGED
         labelStyle: const TextStyle(color: Color(0xFF667085)),
         floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-        hintText: selectedLanguage == 'বাংলা' ? 'ট্রেড লাইসেন্স নম্বর লিখুন' : 'Enter trade license number',
+        hintText: 'enterTradeLicenseNumber'.tr, // CHANGED
         hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -73,7 +74,7 @@ class TradeLicenseSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          selectedLanguage == 'বাংলা' ? 'ট্রেড লাইসেন্স ডকুমেন্ট' : 'Trade License Document',
+          'tradeLicenseDocument'.tr, // CHANGED
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -106,7 +107,7 @@ class TradeLicenseSection extends StatelessWidget {
                 Text(
                   licenseDocument != null 
                       ? licenseDocument!
-                      : selectedLanguage == 'বাংলা' ? 'ডকুমেন্ট আপলোড করুন' : 'Upload Document',
+                      : 'uploadDocument'.tr, // CHANGED
                   style: TextStyle(
                     color: licenseDocument != null ? Colors.green : const Color(0xFF667085),
                     fontSize: 14,
@@ -125,7 +126,7 @@ class TradeLicenseSection extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      selectedLanguage == 'বাংলা' ? 'মুছে ফেলুন' : 'Remove',
+                      'remove'.tr, // CHANGED
                       style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,

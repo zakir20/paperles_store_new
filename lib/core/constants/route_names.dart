@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';  // ADD THIS LINE
+import 'package:flutter/material.dart';  
 import 'package:get/get.dart';
 
 class RouteNames {

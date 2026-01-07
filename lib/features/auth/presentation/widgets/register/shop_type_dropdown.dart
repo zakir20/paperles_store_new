@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 
 class ShopTypeDropdown extends StatelessWidget {
   final String selectedLanguage;
@@ -20,7 +21,7 @@ class ShopTypeDropdown extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          selectedLanguage == 'বাংলা' ? 'দোকানের ধরন' : 'Shop Type',
+          'shopType'.tr, // CHANGED: Use .tr
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -41,13 +42,13 @@ class ShopTypeDropdown extends StatelessWidget {
               prefixIcon: const Icon(Icons.category, color: Color(0xFF667085), size: 20),
             ),
             hint: Text(
-              selectedLanguage == 'বাংলা' ? 'দোকানের ধরন নির্বাচন করুন' : 'Select shop type',
+              'selectShopType'.tr, // CHANGED: Use .tr
               style: const TextStyle(color: Color(0xFF667085)),
             ),
             items: shopTypes.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: Text(value), // Shop type values stay as is (Grocery Store, etc.)
               );
             }).toList(),
             onChanged: onChanged,

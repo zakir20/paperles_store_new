@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../../core/controllers/language_controller.dart'; 
 
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
-  final String selectedLanguage;
   final ValueChanged<bool> onVisibilityChanged;
   final bool isPasswordVisible;
 
   const PasswordField({
     Key? key,
     required this.controller,
-    required this.selectedLanguage,
     required this.onVisibilityChanged,
     required this.isPasswordVisible,
   }) : super(key: key);
@@ -29,17 +29,11 @@ class _PasswordFieldState extends State<PasswordField> {
             controller: widget.controller,
             obscureText: !widget.isPasswordVisible,
             decoration: InputDecoration(
-              labelText: widget.selectedLanguage == 'বাংলা' ? 'পাসওয়ার্ড' : 'Password',
-              labelStyle: TextStyle(
-                color: const Color(0xFF667085),
-                fontFamily: widget.selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
-              ),
+              labelText: 'password'.tr,
+              labelStyle: const TextStyle(color: Color(0xFF667085)),
               floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-              hintText: widget.selectedLanguage == 'বাংলা' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password',
-              hintStyle: TextStyle(
-                color: const Color(0xFF667085),
-                fontFamily: widget.selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
-              ),
+              hintText: 'enterPassword'.tr,
+              hintStyle: const TextStyle(color: Color(0xFF667085)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
@@ -66,16 +60,17 @@ class _PasswordFieldState extends State<PasswordField> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               minimumSize: Size.zero,
             ),
-            child: Text(
-              widget.isPasswordVisible
-                ? widget.selectedLanguage == 'বাংলা' ? 'লুকান' : 'Hide'
-                : widget.selectedLanguage == 'বাংলা' ? 'দেখান' : 'Show',
-              style: TextStyle(
-                color: const Color(0xFF344054),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                fontFamily: widget.selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
-              ),
+            child: GetBuilder<LanguageController>(  
+              builder: (languageController) {
+                return Text(
+                  widget.isPasswordVisible ? 'hide'.tr : 'show'.tr,
+                  style: const TextStyle(
+                    color: Color(0xFF344054),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              },
             ),
           ),
         ),

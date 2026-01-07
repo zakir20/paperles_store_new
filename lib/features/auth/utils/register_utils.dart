@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 
 class RegisterUtils {
   static void showSnackBar(BuildContext context, String message, Color color) {
@@ -42,36 +43,28 @@ class RegisterUtils {
         confirmPassword.isEmpty) {
       return {
         'valid': 'false',
-        'message': selectedLanguage == 'বাংলা' 
-            ? 'সব প্রয়োজনীয় তথ্য পূরণ করুন' 
-            : 'Please fill all required fields'
+        'message': 'fillAllRequiredFields'.tr // CHANGED
       };
     }
 
     if (password != confirmPassword) {
       return {
         'valid': 'false',
-        'message': selectedLanguage == 'বাংলা' 
-            ? 'পাসওয়ার্ড মিলছে না' 
-            : 'Passwords do not match'
+        'message': 'passwordsNotMatch'.tr // CHANGED: Already exists
       };
     }
 
     if (password.length < 6) {
       return {
         'valid': 'false',
-        'message': selectedLanguage == 'বাংলা' 
-            ? 'পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে' 
-            : 'Password must be at least 6 characters'
+        'message': 'passwordTooShort'.tr // CHANGED: Already exists
       };
     }
 
     if (!validateEmail(email)) {
       return {
         'valid': 'false',
-        'message': selectedLanguage == 'বাংলা' 
-            ? 'সঠিক ইমেইল ঠিকানা লিখুন' 
-            : 'Please enter a valid email address'
+        'message': 'invalidEmail'.tr // CHANGED: Already exists
       };
     }
 

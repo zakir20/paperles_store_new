@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 
 class LanguageUtils {
   static void showLanguageDialog({
@@ -10,13 +11,13 @@ class LanguageUtils {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(currentLanguage == 'বাংলা' ? 'ভাষা নির্বাচন করুন' : 'Select Language'),
+        title: Text('selectLanguage'.tr), // CHANGED
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Text('🇺🇸', style: TextStyle(fontSize: 20)),
-              title: const Text('English (EN)'),
+              title: Text('english'.tr), // CHANGED: Need to add key
               onTap: () {
                 onLanguageChanged('English (EN)');
                 onFlagChanged('🇺🇸');
@@ -25,7 +26,7 @@ class LanguageUtils {
             ),
             ListTile(
               leading: const Text('🇧🇩', style: TextStyle(fontSize: 20)),
-              title: const Text('বাংলা'),
+              title: Text('bangla'.tr), // CHANGED: Need to add key
               onTap: () {
                 onLanguageChanged('বাংলা');
                 onFlagChanged('🇧🇩');

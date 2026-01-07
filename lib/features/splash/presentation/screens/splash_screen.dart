@@ -15,12 +15,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    // Check if user is already logged in
+
     final isLoggedIn = await ApiService.isLoggedIn();
     
     Future.delayed(const Duration(seconds: 3), () {
       if (isLoggedIn) {
-        // If logged in, go to dashboard
         Navigator.pushReplacementNamed(context, '/dashboard');
       } else {
         // If not logged in, go to login
@@ -78,36 +77,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             
-            const SizedBox(height: 100),
-            
-            // JSON Storage Info
-            // Container(
-            //   padding: const EdgeInsets.all(10),
-            //   decoration: BoxDecoration(
-            //     color: Colors.green[50],
-            //     borderRadius: BorderRadius.circular(8),
-            //   ),
-            //   child: const Column(
-            //     children: [
-            //       Text(
-            //         '✅ JSON Storage Active',
-            //         style: TextStyle(
-            //           color: Colors.green,
-            //           fontSize: 12,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //       SizedBox(height: 5),
-            //       Text(
-            //         'Works 100% offline • No server needed',
-            //         style: TextStyle(
-            //           color: Colors.grey,
-            //           fontSize: 10,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             
             const SizedBox(height: 20),
             

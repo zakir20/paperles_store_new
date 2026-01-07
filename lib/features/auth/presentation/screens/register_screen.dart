@@ -21,7 +21,6 @@ import '../controllers/register_controller.dart';
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({Key? key}) : super(key: key);
   
-  // GetX Controller
   final RegisterController registerController = Get.put(RegisterController());
   
   final _fullNameController = TextEditingController();
@@ -112,11 +111,7 @@ class RegisterScreen extends StatelessWidget {
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
-          Obx(() => Text(
-            registerController.selectedLanguage.value == 'বাংলা' 
-                ? 'নিবন্ধন করা হচ্ছে... JSON এ সংরক্ষণ করা হচ্ছে'
-                : 'Registering... ',
-          )),
+          Obx(() => Text('registering'.tr)), 
           const Text('(Working offline - No server needed)', 
                style: TextStyle(fontSize: 12, color: Colors.grey)),
         ],
@@ -125,56 +120,56 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildFormFields() {
-    return Obx(() => Column(
+    return Column( 
       children: [
         RegisterFormField(
           controller: _fullNameController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পুরো নাম' : 'Full Name',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার পুরো নাম লিখুন' : 'Enter your full name',
+          label: 'fullName'.tr, 
+          hint: 'enterFullName'.tr, 
           icon: Icons.person_outline,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _shopNameController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের নাম' : 'Shop Name',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার দোকানের নাম লিখুন' : 'Enter your shop name',
+          label: 'shopName'.tr,
+          hint: 'enterShopName'.tr, 
           icon: Icons.store,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _proprietorNameController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'মালিকের নাম' : 'Proprietor Name',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'মালিকের নাম লিখুন' : 'Enter proprietor name',
+          label: 'proprietorName'.tr, 
+          hint: 'enterProprietorName'.tr, 
           icon: Icons.business_center,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _phoneController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'ফোন নম্বর' : 'Phone Number',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার ফোন নম্বর লিখুন' : 'Enter your phone number',
+          label: 'phoneNumber'.tr, 
+          hint: 'enterPhoneNumber'.tr, 
           icon: Icons.phone,
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _emailController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'ইমেইল' : 'Email',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার ইমেইল লিখুন' : 'Enter your email',
+          label: 'email'.tr, 
+          hint: 'enterEmail'.tr, 
           icon: Icons.email,
           keyboardType: TextInputType.emailAddress,
         ),
       ],
-    ));
+    );
   }
 
   Widget _buildAddressFields(BuildContext context) {
-    return Obx(() => Column(
+    return Column( 
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RegisterFormField(
           controller: _storeAddressController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের ঠিকানা' : 'Store Address',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার দোকানের সম্পূর্ণ ঠিকানা লিখুন' : 'Enter your complete store address',
+          label: 'storeAddress'.tr, 
+          hint: 'enterStoreAddress'.tr, 
           icon: Icons.location_on,
           maxLines: 3,
         ),
@@ -185,10 +180,10 @@ class RegisterScreen extends StatelessWidget {
             readOnly: true,
             controller: _locationController,
             decoration: InputDecoration(
-              labelText: registerController.selectedLanguage.value == 'বাংলা' ? 'দোকানের অবস্থান' : 'Shop Location',
+              labelText: 'shopLocation'.tr, 
               labelStyle: const TextStyle(color: Color(0xFF667085)),
               floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-              hintText: registerController.selectedLanguage.value == 'বাংলা' ? 'অবস্থান নির্বাচন করুন' : 'Select Location',
+              hintText: 'selectLocation'.tr, 
               hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -205,16 +200,16 @@ class RegisterScreen extends StatelessWidget {
           ),
         ),
       ],
-    ));
+    );
   }
 
   Widget _buildPasswordFields() {
-    return Obx(() => Column(
+    return Column( 
       children: [
         RegisterFormField(
           controller: _passwordController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড' : 'Password',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password',
+          label: 'password'.tr, 
+          hint: 'enterPassword'.tr, 
           icon: Icons.lock,
           isPassword: true,
           isPasswordVisible: registerController.isPasswordVisible.value,
@@ -223,15 +218,15 @@ class RegisterScreen extends StatelessWidget {
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _confirmPasswordController,
-          label: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password',
-          hint: registerController.selectedLanguage.value == 'বাংলা' ? 'পাসওয়ার্ড আবার লিখুন' : 'Re-enter your password',
+          label: 'confirmPassword'.tr, 
+          hint: 'reEnterPassword'.tr, 
           icon: Icons.lock,
           isPassword: true,
           isPasswordVisible: registerController.isConfirmPasswordVisible.value,
           onPasswordVisibilityToggle: () => registerController.isConfirmPasswordVisible.value = !registerController.isConfirmPasswordVisible.value,
         ),
       ],
-    ));
+    );
   }
 
   void _showImageSourceDialog(BuildContext context) {
@@ -249,18 +244,16 @@ class RegisterScreen extends StatelessWidget {
       if (image != null) {
         registerController.profileImage.value = image;
         Get.snackbar(
-          registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
-          registerController.selectedLanguage.value == 'বাংলা' 
-              ? 'ছবি সফলভাবে তোলা হয়েছে' 
-              : 'Image captured successfully',
+          'success'.tr, 
+          'imageCapturedSuccessfully'.tr, 
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
       }
     } catch (e) {
       Get.snackbar(
-        registerController.selectedLanguage.value == 'বাংলা' ? 'ত্রুটি' : 'Error',
-        e.toString(),
+        'error'.tr, 
+        '${'cameraError'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -273,18 +266,16 @@ class RegisterScreen extends StatelessWidget {
       if (image != null) {
         registerController.profileImage.value = image;
         Get.snackbar(
-          registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
-          registerController.selectedLanguage.value == 'বাংলা' 
-              ? 'ছবি সফলভাবে নির্বাচিত হয়েছে' 
-              : 'Image selected successfully',
+          'success'.tr, 
+          'imageSelectedSuccessfully'.tr, 
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
       }
     } catch (e) {
       Get.snackbar(
-        registerController.selectedLanguage.value == 'বাংলা' ? 'ত্রুটি' : 'Error',
-        e.toString(),
+        'error'.tr, 
+        '${'galleryError'.tr}: $e', 
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -304,57 +295,51 @@ class RegisterScreen extends StatelessWidget {
   void _simulateDocumentUpload(String fileName) {
     registerController.tradeLicenseDocument.value = fileName;
     Get.snackbar(
-      registerController.selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
-      registerController.selectedLanguage.value == 'বাংলা' 
-          ? 'ডকুমেন্ট আপলোড করা হয়েছে: $fileName' 
-          : 'Document uploaded: $fileName',
+      'success'.tr, 
+      'documentUploaded'.tr.replaceAll('{fileName}', fileName), 
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green,
     );
   }
 
   void _openLocationPicker(BuildContext context) {
-  // Test if the problem is in SimpleLocationPicker
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Obx(() => Text(
-        registerController.selectedLanguage.value == 'বাংলা' 
-          ? 'অবস্থান নির্বাচন করুন' 
-          : 'Select Location'
-      )),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: const Text('Dhaka, Bangladesh'),
-            onTap: () {
-              _locationController.text = 'Dhaka, Bangladesh';
-              Navigator.pop(context); // Close dialog
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: const Text('Chittagong, Bangladesh'),
-            onTap: () {
-              _locationController.text = 'Chittagong, Bangladesh';
-              Navigator.pop(context); // Close dialog
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: const Text('Sylhet, Bangladesh'),
-            onTap: () {
-              _locationController.text = 'Sylhet, Bangladesh';
-              Navigator.pop(context); // Close dialog
-            },
-          ),
-        ],
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('selectLocation'.tr), 
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('Dhaka, Bangladesh'),
+              onTap: () {
+                _locationController.text = 'Dhaka, Bangladesh';
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('Chittagong, Bangladesh'),
+              onTap: () {
+                _locationController.text = 'Chittagong, Bangladesh';
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('Sylhet, Bangladesh'),
+              onTap: () {
+                _locationController.text = 'Sylhet, Bangladesh';
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
 
   void _showLanguageDialog(BuildContext context) {
     LanguageUtils.showLanguageDialog(
@@ -366,22 +351,18 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Future<void> _register() async {
-    // Simple validation
     if (_fullNameController.text.isEmpty || 
         _emailController.text.isEmpty || 
         _passwordController.text.isEmpty) {
       Get.snackbar(
-        registerController.selectedLanguage.value == 'বাংলা' ? 'সতর্কতা' : 'Warning',
-        registerController.selectedLanguage.value == 'বাংলা' 
-            ? 'দয়া করে প্রয়োজনীয় তথ্য পূরণ করুন' 
-            : 'Please fill required information',
+        'warning'.tr, 
+        'fillRequiredInfo'.tr, 
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
       );
       return;
     }
 
-    // Use GetX controller to handle registration
     await registerController.register(
       fullName: _fullNameController.text,
       shopName: _shopNameController.text,

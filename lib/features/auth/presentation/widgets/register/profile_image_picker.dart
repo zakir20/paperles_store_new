@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Add this import
 import 'dart:io';
 
 class ProfileImagePicker extends StatelessWidget {
@@ -21,7 +22,7 @@ class ProfileImagePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          selectedLanguage == 'বাংলা' ? 'প্রোফাইল ছবি' : 'Profile Image',
+          'profileImage'.tr, // CHANGED
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -30,7 +31,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          selectedLanguage == 'বাংলা' ? 'ছবি আপলোড বা তুলুন' : 'Upload or take a photo',
+          'uploadOrTakePhoto'.tr, // CHANGED
           style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF667085),
@@ -99,7 +100,7 @@ class ProfileImagePicker extends StatelessWidget {
                 const Icon(Icons.check, color: Colors.white, size: 14),
                 const SizedBox(width: 4),
                 Text(
-                  selectedLanguage == 'বাংলা' ? 'ছবি নির্বাচিত' : 'Image Selected',
+                  'imageSelected'.tr, // CHANGED
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -125,7 +126,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          selectedLanguage == 'বাংলা' ? 'ছবি যোগ করুন' : 'Add Photo',
+          'addPhoto'.tr, // CHANGED
           style: const TextStyle(
             color: Color(0xFF667085),
             fontSize: 16,
@@ -133,9 +134,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Text(
-          selectedLanguage == 'বাংলা' 
-              ? 'ক্লিক করে ছবি আপলোড করুন' 
-              : 'Click to upload photo',
+          'clickToUploadPhoto'.tr, // CHANGED
           style: const TextStyle(
             color: Color(0xFF98A2B3),
             fontSize: 12,

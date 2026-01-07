@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
 
 class LoginButton extends StatelessWidget {
-  final String selectedLanguage;
   final bool isLoading;
   final VoidCallback onPressed;
 
   const LoginButton({
     Key? key,
-    required this.selectedLanguage,
     required this.isLoading,
     required this.onPressed,
   }) : super(key: key);
@@ -35,11 +34,10 @@ class LoginButton extends StatelessWidget {
                 ),
               )
             : Text(
-                selectedLanguage == 'বাংলা' ? 'সাইন ইন' : 'Sign In',
-                style: TextStyle(
+                'login'.tr,  
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  fontFamily: selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
                 ),
               ),
       ),

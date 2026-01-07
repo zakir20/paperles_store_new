@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/material.dart'; // ADD THIS IMPORT
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,7 +15,7 @@ class RegisterController extends GetxController {
   final selectedLanguage = 'English (EN)'.obs;
   final selectedFlag = '🇺🇸'.obs;
   
-  // Form Data - FIXED SYNTAX
+  // Form Data
   final selectedShopType = Rx<String?>(null);
   final tradeLicenseDocument = Rx<String?>(null);
   final profileImage = Rx<File?>(null);
@@ -39,12 +39,10 @@ class RegisterController extends GetxController {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
       
-      // Success
+      // Success - USE .tr
       Get.snackbar(
-        selectedLanguage.value == 'বাংলা' ? 'সফল' : 'Success',
-        selectedLanguage.value == 'বাংলা' 
-            ? 'নিবন্ধন সফল হয়েছে' 
-            : 'Registration successful',
+        'success'.tr, // CHANGED
+        'registrationSuccessful'.tr, // CHANGED
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
@@ -58,8 +56,8 @@ class RegisterController extends GetxController {
       
     } catch (e) {
       Get.snackbar(
-        selectedLanguage.value == 'বাংলা' ? 'ত্রুটি' : 'Error',
-        '${selectedLanguage.value == 'বাংলা' ? 'ত্রুটি হয়েছে:' : 'Error:'} $e',
+        'error'.tr, // CHANGED
+        '${'errorOccurred'.tr}: $e', // CHANGED: Need to add key
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

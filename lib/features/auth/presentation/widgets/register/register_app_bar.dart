@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
 
 class RegisterAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String selectedLanguage;
@@ -29,7 +30,7 @@ class RegisterAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: onBackPressed,
       ),
       title: Text(
-        selectedLanguage == 'বাংলা' ? 'ব্যবহারকারী নিবন্ধন' : 'User Registration',
+        'userRegistration'.tr, 
         style: const TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
@@ -51,7 +52,7 @@ class RegisterAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Text(selectedFlag, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
                 Text(
-                  selectedLanguage,
+                  selectedLanguage, 
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF344054),

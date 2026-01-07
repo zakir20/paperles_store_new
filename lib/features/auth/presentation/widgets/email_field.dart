@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
 
 class EmailField extends StatelessWidget {
   final TextEditingController controller;
-  final String selectedLanguage;
 
   const EmailField({
     Key? key,
     required this.controller,
-    required this.selectedLanguage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        labelText: selectedLanguage == 'বাংলা' ? 'ইমেইল' : 'Email',
-        labelStyle: TextStyle(
-          color: const Color(0xFF667085),
-          fontFamily: selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
+        labelText: 'email'.tr,  
+        labelStyle: const TextStyle(
+          color: Color(0xFF667085),
         ),
         floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-        hintText: selectedLanguage == 'বাংলা' ? 'আপনার ইমেইল লিখুন' : 'Enter your email',
-        hintStyle: TextStyle(
-          color: const Color(0xFF667085),
-          fontFamily: selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
+        hintText: 'enterEmail'.tr,  
+        hintStyle: const TextStyle(
+          color: Color(0xFF667085),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
