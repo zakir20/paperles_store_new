@@ -36,6 +36,7 @@ class ImagePickerUtils {
       }
     } catch (e) {
       throw Exception('${'galleryError'.tr}: $e'); 
+    } 
     return null;
   }
 

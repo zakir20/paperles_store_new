@@ -22,7 +22,7 @@ class ProfileImagePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'profileImage'.tr, // CHANGED
+          'profileImage'.tr, 
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -31,7 +31,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'uploadOrTakePhoto'.tr, // CHANGED
+          'uploadOrTakePhoto'.tr, 
           style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF667085),
@@ -100,7 +100,7 @@ class ProfileImagePicker extends StatelessWidget {
                 const Icon(Icons.check, color: Colors.white, size: 14),
                 const SizedBox(width: 4),
                 Text(
-                  'imageSelected'.tr, // CHANGED
+                  'imageSelected'.tr, 
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -126,7 +126,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'addPhoto'.tr, // CHANGED
+          'addPhoto'.tr, 
           style: const TextStyle(
             color: Color(0xFF667085),
             fontSize: 16,
@@ -134,7 +134,7 @@ class ProfileImagePicker extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Text(
-          'clickToUploadPhoto'.tr, // CHANGED
+          'clickToUploadPhoto'.tr, 
           style: const TextStyle(
             color: Color(0xFF98A2B3),
             fontSize: 12,

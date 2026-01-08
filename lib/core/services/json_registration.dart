@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:get/get.dart'; // ADD THIS
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,12 +9,17 @@ class JsonRegistration {
   factory JsonRegistration() => _instance ??= JsonRegistration._internal();
   JsonRegistration._internal();
 
+  // ========== GETX FOR USER MANAGEMENT ONLY ==========
+  // Reactive current user for GetX
+  final Rx<Map<String, dynamic>?> currentUser = Rx<Map<String, dynamic>?>(null);
+
   // Files for different data types
   final String _usersFile = 'paperless_store_users.json';
   final String _suppliersFile = 'paperless_store_suppliers.json';
   final String _brandsFile = 'paperless_store_brands.json';
   final String _categoriesFile = 'paperless_store_categories.json';
-  final String _productsFile = 'paperless_store_products.json'; // Moved here to avoid duplicate
+  final String _productsFile = 'paperless_store_products.json';
+  final String _customersFile = 'paperless_store_customers.json'; // Added missing
 
   // ========== FILE HELPER METHODS ==========
   Future<File> _getFile(String fileName) async {
@@ -51,7 +57,7 @@ class JsonRegistration {
     }
   }
 
-  // ========== USER MANAGEMENT ==========
+  // ========== USER MANAGEMENT WITH GETX ==========
   Future<Map<String, dynamic>> registerUser(Map<String, dynamic> userData) async {
     print('📝 JSON Registration: Starting...');
     
@@ -63,9 +69,11 @@ class JsonRegistration {
       final phoneExists = users.any((user) => user['phone'] == userData['phone']);
       
       if (emailExists) {
+        Get.snackbar('Error', 'Email already registered'); // GETX
         return {'success': false, 'message': 'Email already registered'};
       }
       if (phoneExists) {
+        Get.snackbar('Error', 'Phone already registered'); // GETX
         return {'success': false, 'message': 'Phone already registered'};
       }
 
@@ -94,10 +102,15 @@ class JsonRegistration {
         return saveResult;
       }
 
-      // Save session
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('registered_user', json.encode(userRecord));
-      await prefs.setBool('is_registered', true);
+      // Update GetX reactive user
+      currentUser.value = userRecord;
+
+      Get.snackbar( // GETX
+        'Success',
+        'Registration successful!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+      );
 
       print('✅ JSON Registration: User saved successfully');
       
@@ -108,6 +121,7 @@ class JsonRegistration {
         'user_data': userRecord,
       };
     } catch (e) {
+      Get.snackbar('Error', 'Registration failed: $e'); // GETX
       print('❌ JSON Registration Error: $e');
       return {'success': false, 'message': 'Registration failed: $e'};
     }
@@ -118,6 +132,7 @@ class JsonRegistration {
       final List<Map<String, dynamic>> users = await _readJsonFile(_usersFile);
       
       if (users.isEmpty) {
+        Get.snackbar('Error', 'No users found. Please register first.'); // GETX
         return {'success': false, 'message': 'No users found. Please register first.'};
       }
 
@@ -130,13 +145,18 @@ class JsonRegistration {
       );
 
       if (user.isEmpty) {
+        Get.snackbar('Error', 'Invalid email or password'); // GETX
         return {'success': false, 'message': 'Invalid email or password'};
       }
 
-      // Save session
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('current_user', json.encode(user));
-      await prefs.setBool('is_logged_in', true);
+      // Update GetX reactive user
+      currentUser.value = user;
+
+      Get.snackbar( // GETX
+        'Success',
+        'Login successful!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
 
       return {
         'success': true,
@@ -144,8 +164,23 @@ class JsonRegistration {
         'user_data': user,
       };
     } catch (e) {
+      Get.snackbar('Error', 'Login error: $e'); // GETX
       return {'success': false, 'message': 'Login error: $e'};
     }
+  }
+
+  // GETX METHODS
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    return currentUser.value;
+  }
+
+  Future<bool> isLoggedIn() async {
+    return currentUser.value != null;
+  }
+
+  Future<void> logout() async {
+    currentUser.value = null;
+    Get.snackbar('Logged Out', 'You have been logged out'); 
   }
 
   // ========== SUPPLIER MANAGEMENT ==========
@@ -424,23 +459,6 @@ class JsonRegistration {
     return 'hash_${input.hashCode.abs()}';
   }
 
-  Future<Map<String, dynamic>?> getCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userString = prefs.getString('current_user');
-    return userString != null ? Map<String, dynamic>.from(json.decode(userString)) : null;
-  }
-
-  Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('is_logged_in') ?? false;
-  }
-
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('current_user');
-    await prefs.remove('is_logged_in');
-  }
-
   // ========== TEST METHODS ==========
   Future<void> testJsonStorage() async {
     try {
@@ -504,7 +522,8 @@ class JsonRegistration {
     
     print('📊 === TEST COMPLETE ===');
   }
-  // ========== DELETE PRODUCT ==========
+
+  // ========== DELETE METHODS ==========
   Future<Map<String, dynamic>> deleteProduct(String productId) async {
     print('🗑️ JSON Product: Deleting product $productId');
     
@@ -538,7 +557,6 @@ class JsonRegistration {
     }
   }
 
-  // ========== DELETE SUPPLIER ==========
   Future<Map<String, dynamic>> deleteSupplier(String supplierId) async {
     print('🗑️ JSON Supplier: Deleting supplier $supplierId');
     
@@ -580,7 +598,6 @@ class JsonRegistration {
     }
   }
 
-  // ========== DELETE BRAND ==========
   Future<Map<String, dynamic>> deleteBrand(String brandId) async {
     print('🗑️ JSON Brand: Deleting brand $brandId');
     
@@ -622,7 +639,6 @@ class JsonRegistration {
     }
   }
 
-  // ========== DELETE CATEGORY ==========
   Future<Map<String, dynamic>> deleteCategory(String categoryId) async {
     print('🗑️ JSON Category: Deleting category $categoryId');
     
@@ -663,132 +679,133 @@ class JsonRegistration {
       return {'success': false, 'message': 'Failed to delete category: $e'};
     }
   }
+
   // ========== CUSTOMER MANAGEMENT ==========
-Future<Map<String, dynamic>> addCustomer(Map<String, dynamic> customerData) async {
-  print('📝 JSON Customer: Adding customer...');
-  
-  try {
-    final List<Map<String, dynamic>> customers = await _readJsonFile('paperless_store_customers.json');
-
-    // Check if phone exists
-    final phoneExists = customers.any((customer) => customer['phone'] == customerData['phone']);
+  Future<Map<String, dynamic>> addCustomer(Map<String, dynamic> customerData) async {
+    print('📝 JSON Customer: Adding customer...');
     
-    if (phoneExists) {
-      return {'success': false, 'message': 'Phone number already registered for another customer'};
+    try {
+      final List<Map<String, dynamic>> customers = await _readJsonFile(_customersFile);
+
+      // Check if phone exists
+      final phoneExists = customers.any((customer) => customer['phone'] == customerData['phone']);
+      
+      if (phoneExists) {
+        return {'success': false, 'message': 'Phone number already registered for another customer'};
+      }
+
+      // Create customer record
+      final customerId = 'CUST_${DateTime.now().millisecondsSinceEpoch}';
+      final customerRecord = {
+        'customer_id': customerId,
+        'name': customerData['name'] ?? '',
+        'address': customerData['address'] ?? '',
+        'phone': customerData['phone'] ?? '',
+        'profile_image': customerData['profile_image'] ?? '',
+        'amount_type': customerData['amount_type'] ?? 'due', // 'due' or 'credit'
+        'amount': customerData['amount'] ?? 0.0,
+        'created_at': DateTime.now().toIso8601String(),
+        'last_updated': DateTime.now().toIso8601String(),
+        'status': 'active',
+      };
+
+      // Save to file
+      customers.add(customerRecord);
+      final saveResult = await _writeJsonFile(_customersFile, customers);
+      if (!saveResult['success']) {
+        return saveResult;
+      }
+
+      print('✅ JSON Customer: Customer saved successfully');
+      
+      return {
+        'success': true,
+        'message': 'Customer added successfully!',
+        'customer_id': customerId,
+        'customer_data': customerRecord,
+      };
+    } catch (e) {
+      print('❌ JSON Customer Error: $e');
+      return {'success': false, 'message': 'Failed to add customer: $e'};
     }
-
-    // Create customer record
-    final customerId = 'CUST_${DateTime.now().millisecondsSinceEpoch}';
-    final customerRecord = {
-      'customer_id': customerId,
-      'name': customerData['name'] ?? '',
-      'address': customerData['address'] ?? '',
-      'phone': customerData['phone'] ?? '',
-      'profile_image': customerData['profile_image'] ?? '',
-      'amount_type': customerData['amount_type'] ?? 'due', // 'due' or 'credit'
-      'amount': customerData['amount'] ?? 0.0,
-      'created_at': DateTime.now().toIso8601String(),
-      'last_updated': DateTime.now().toIso8601String(),
-      'status': 'active',
-    };
-
-    // Save to file
-    customers.add(customerRecord);
-    final saveResult = await _writeJsonFile('paperless_store_customers.json', customers);
-    if (!saveResult['success']) {
-      return saveResult;
-    }
-
-    print('✅ JSON Customer: Customer saved successfully');
-    
-    return {
-      'success': true,
-      'message': 'Customer added successfully!',
-      'customer_id': customerId,
-      'customer_data': customerRecord,
-    };
-  } catch (e) {
-    print('❌ JSON Customer Error: $e');
-    return {'success': false, 'message': 'Failed to add customer: $e'};
   }
-}
 
-Future<List<Map<String, dynamic>>> getAllCustomers() async {
-  return await _readJsonFile('paperless_store_customers.json');
-}
-
-Future<List<Map<String, dynamic>>> getCustomersWithDue() async {
-  final allCustomers = await getAllCustomers();
-  return allCustomers.where((customer) => 
-    customer['amount_type'] == 'due' && (customer['amount'] as num) > 0
-  ).toList();
-}
-
-Future<List<Map<String, dynamic>>> getCustomersWithCredit() async {
-  final allCustomers = await getAllCustomers();
-  return allCustomers.where((customer) => 
-    customer['amount_type'] == 'credit' && (customer['amount'] as num) > 0
-  ).toList();
-}
-
-Future<Map<String, dynamic>> updateCustomerAmount(String customerId, double newAmount, String amountType) async {
-  try {
-    final List<Map<String, dynamic>> customers = await _readJsonFile('paperless_store_customers.json');
-    
-    final index = customers.indexWhere((customer) => customer['customer_id'] == customerId);
-    
-    if (index == -1) {
-      return {'success': false, 'message': 'Customer not found'};
-    }
-
-    // Update customer
-    customers[index] = {
-      ...customers[index],
-      'amount': newAmount,
-      'amount_type': amountType,
-      'last_updated': DateTime.now().toIso8601String(),
-    };
-
-    final saveResult = await _writeJsonFile('paperless_store_customers.json', customers);
-    if (!saveResult['success']) {
-      return saveResult;
-    }
-
-    return {
-      'success': true,
-      'message': 'Customer amount updated successfully',
-      'customer_data': customers[index],
-    };
-  } catch (e) {
-    return {'success': false, 'message': 'Failed to update customer: $e'};
+  Future<List<Map<String, dynamic>>> getAllCustomers() async {
+    return await _readJsonFile(_customersFile);
   }
-}
 
-Future<Map<String, dynamic>> deleteCustomer(String customerId) async {
-  try {
-    final List<Map<String, dynamic>> customers = await _readJsonFile('paperless_store_customers.json');
-    
-    final index = customers.indexWhere((customer) => customer['customer_id'] == customerId);
-    
-    if (index == -1) {
-      return {'success': false, 'message': 'Customer not found'};
-    }
-
-    // Remove customer
-    final deletedCustomer = customers.removeAt(index);
-
-    final saveResult = await _writeJsonFile('paperless_store_customers.json', customers);
-    if (!saveResult['success']) {
-      return saveResult;
-    }
-
-    return {
-      'success': true,
-      'message': 'Customer deleted successfully',
-      'deleted_customer': deletedCustomer,
-    };
-  } catch (e) {
-    return {'success': false, 'message': 'Failed to delete customer: $e'};
+  Future<List<Map<String, dynamic>>> getCustomersWithDue() async {
+    final allCustomers = await getAllCustomers();
+    return allCustomers.where((customer) => 
+      customer['amount_type'] == 'due' && (customer['amount'] as num) > 0
+    ).toList();
   }
-}
+
+  Future<List<Map<String, dynamic>>> getCustomersWithCredit() async {
+    final allCustomers = await getAllCustomers();
+    return allCustomers.where((customer) => 
+      customer['amount_type'] == 'credit' && (customer['amount'] as num) > 0
+    ).toList();
+  }
+
+  Future<Map<String, dynamic>> updateCustomerAmount(String customerId, double newAmount, String amountType) async {
+    try {
+      final List<Map<String, dynamic>> customers = await _readJsonFile(_customersFile);
+      
+      final index = customers.indexWhere((customer) => customer['customer_id'] == customerId);
+      
+      if (index == -1) {
+        return {'success': false, 'message': 'Customer not found'};
+      }
+
+      // Update customer
+      customers[index] = {
+        ...customers[index],
+        'amount': newAmount,
+        'amount_type': amountType,
+        'last_updated': DateTime.now().toIso8601String(),
+      };
+
+      final saveResult = await _writeJsonFile(_customersFile, customers);
+      if (!saveResult['success']) {
+        return saveResult;
+      }
+
+      return {
+        'success': true,
+        'message': 'Customer amount updated successfully',
+        'customer_data': customers[index],
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to update customer: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteCustomer(String customerId) async {
+    try {
+      final List<Map<String, dynamic>> customers = await _readJsonFile(_customersFile);
+      
+      final index = customers.indexWhere((customer) => customer['customer_id'] == customerId);
+      
+      if (index == -1) {
+        return {'success': false, 'message': 'Customer not found'};
+      }
+
+      // Remove customer
+      final deletedCustomer = customers.removeAt(index);
+
+      final saveResult = await _writeJsonFile(_customersFile, customers);
+      if (!saveResult['success']) {
+        return saveResult;
+      }
+
+      return {
+        'success': true,
+        'message': 'Customer deleted successfully',
+        'deleted_customer': deletedCustomer,
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to delete customer: $e'};
+    }
+  }
 }

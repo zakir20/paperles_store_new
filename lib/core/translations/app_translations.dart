@@ -70,6 +70,8 @@ class AppTranslations extends Translations {
       'error': 'Error',
       'emailRequired': 'Email is required',
       'featureComingSoon': 'This feature is coming soon',
+      'registrationSuccessful': 'Registration successful!',
+      'registrationError': 'Registration error. Please try again.',
     },
     
     'bn_BD': {
@@ -139,6 +141,8 @@ class AppTranslations extends Translations {
     'error': 'ত্রুটি',
     'emailRequired': 'ইমেইল প্রয়োজন',
     'featureComingSoon': 'এই বৈশিষ্ট্য শীঘ্রই আসছে',
+    'registrationSuccessful': 'নিবন্ধন সফল!',
+     'registrationError': 'নিবন্ধন ত্রুটি। আবার চেষ্টা করুন।',
     },
   };
 }

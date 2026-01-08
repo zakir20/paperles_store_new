@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../core/services/api_service.dart';
 
 class RegistrationService {
@@ -33,9 +34,7 @@ class RegistrationService {
   }
 
   static Future<void> registerUser({
-    required BuildContext context,
     required Map<String, dynamic> registrationData,
-    required String language,
     required VoidCallback onSuccess,
     required VoidCallback clearForm,
   }) async {
@@ -43,34 +42,82 @@ class RegistrationService {
       final response = await ApiService.registerUser(registrationData);
 
       if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(language == 'বাংলা' ? '✅ নিবন্ধন সফল!' : '✅ Registration successful!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
+        Get.snackbar(
+          'Success',
+          'registrationSuccessful'.tr, 
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
         
         clearForm();
-        Future.delayed(Duration(seconds: 2), onSuccess);
+        Future.delayed(const Duration(seconds: 2), onSuccess);
       } else {
         String errorMessage = response['message'] ?? 'Registration failed';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ \$errorMessage'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
+        Get.snackbar(
+          'Error',
+          errorMessage,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(language == 'বাংলা' ? 'ত্রুটি হয়েছে। আবার চেষ্টা করুন' : 'Error occurred. Please try again'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
+      Get.snackbar(
+        'Error',
+        'registrationError'.tr, 
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
       );
+    }
+  }
+
+  static RegistrationController get controller => Get.find<RegistrationController>();
+}
+
+class RegistrationController extends GetxController {
+  final isLoading = false.obs;
+  final registrationResult = Rx<Map<String, dynamic>?>(null);
+  final errorMessage = ''.obs;
+
+  Future<void> register(Map<String, dynamic> registrationData) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      
+      final response = await ApiService.registerUser(registrationData);
+      registrationResult.value = response;
+      
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Success',
+          'registrationSuccessful'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+        );
+      } else {
+        errorMessage.value = response['message'] ?? 'Registration failed';
+        Get.snackbar(
+          'Error',
+          errorMessage.value,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar(
+        'Error',
+        'registrationError'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 }

@@ -1,42 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../core/services/api_service.dart';
-class SplashScreen extends StatefulWidget {
+
+class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-  }
-
-  Future<void> _checkLoginStatus() async {
-
-    final isLoggedIn = await ApiService.isLoggedIn();
-    
-    Future.delayed(const Duration(seconds: 3), () {
-      if (isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        // If not logged in, go to login
-        Navigator.pushReplacementNamed(context, '/login');
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLoginStatus();
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App Logo
             Container(
               width: 120,
               height: 120,
@@ -52,7 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 30),
             
-            // App Name
             const Text(
               'Paperless Store',
               style: TextStyle(
@@ -64,7 +43,6 @@ class _SplashScreenState extends State<SplashScreen> {
             
             const SizedBox(height: 10),
             
-            // Loading indicator
             Container(
               margin: const EdgeInsets.only(top: 30),
               child: const SizedBox(
@@ -76,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-            
             
             const SizedBox(height: 20),
             
@@ -92,5 +69,16 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkLoginStatus() async {
+    await Future.delayed(const Duration(seconds: 2));
+    
+    final isLoggedIn = await ApiService.isLoggedIn();
+        if (isLoggedIn) {
+      Get.offAllNamed('/dashboard');
+    } else {
+      Get.offAllNamed('/login');
+    }
   }
 }
