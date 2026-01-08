@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Add this import
+import 'package:get/get.dart'; 
 
 class RegisterUtils {
   static void showSnackBar(BuildContext context, String message, Color color) {
@@ -43,28 +43,28 @@ class RegisterUtils {
         confirmPassword.isEmpty) {
       return {
         'valid': 'false',
-        'message': 'fillAllRequiredFields'.tr // CHANGED
+        'message': 'fillAllRequiredFields'.tr 
       };
     }
 
     if (password != confirmPassword) {
       return {
         'valid': 'false',
-        'message': 'passwordsNotMatch'.tr // CHANGED: Already exists
+        'message': 'passwordsNotMatch'.tr 
       };
     }
 
     if (password.length < 6) {
       return {
         'valid': 'false',
-        'message': 'passwordTooShort'.tr // CHANGED: Already exists
+        'message': 'passwordTooShort'.tr 
       };
     }
 
     if (!validateEmail(email)) {
       return {
         'valid': 'false',
-        'message': 'invalidEmail'.tr // CHANGED: Already exists
+        'message': 'invalidEmail'.tr 
       };
     }
 

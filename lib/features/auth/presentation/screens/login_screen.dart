@@ -42,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 60),
                 
                 
+                const SizedBox(height: 32),
+                
                 EmailField(controller: _emailController),
                 const SizedBox(height: 20),
                 
@@ -62,8 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 
                 RegisterLink(onPressed: () => Get.toNamed('/register')),
-                
-              
               ],
             ),
           ),
@@ -72,57 +72,54 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
-
-Widget _buildLanguageSelector() {
-  return PopupMenuButton<String>(
-    itemBuilder: (context) => [
-      PopupMenuItem(
-        value: 'en',
+  Widget _buildLanguageSelector() {
+    return PopupMenuButton<String>(
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'en_US', 
+          child: Row(
+            children: [
+              const Text('🇺🇸'),
+              const SizedBox(width: 8),
+              Text('english'.tr), 
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'bn_BD', 
+          child: Row(
+            children: [
+              const Text('🇧🇩'),
+              const SizedBox(width: 8),
+              Text('bangla'.tr), 
+            ],
+          ),
+        ),
+      ],
+      onSelected: (value) {
+        if (value == 'bn_BD') {
+          languageController.changeLanguage('বাংলা', '🇧🇩', 'bn_BD');
+        } else {
+          languageController.changeLanguage('English', '🇺🇸', 'en_US');
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
-            const Text('🇺🇸'),
+            Obx(() => Text(languageController.selectedFlag.value)),
             const SizedBox(width: 8),
-            const Text('English'), // Keep English hardcoded
+            Obx(() => Text(languageController.selectedLanguage.value)),
+            const Icon(Icons.arrow_drop_down, size: 20),
           ],
         ),
       ),
-      PopupMenuItem(
-        value: 'bn',
-        child: Row(
-          children: [
-            const Text('🇧🇩'),
-            const SizedBox(width: 8),
-            const Text('বাংলা'), // Keep Bangla hardcoded
-          ],
-        ),
-      ),
-    ],
-    onSelected: (value) {
-      if (value == 'Bangla' || value == 'বাংলা') {
-  languageController.changeLanguage('Bangla', '🇧🇩', 'bn_BD');
-} else {
-  languageController.changeLanguage('English', '🇺🇸', 'en_US');
-}
-    },
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Obx(() => Text(languageController.isBangla ? '🇧🇩' : '🇺🇸')),
-          const SizedBox(width: 8),
-          Obx(() => Text(languageController.isBangla ? 'বাংলা' : 'English')), // Keep hardcoded
-          const Icon(Icons.arrow_drop_down, size: 20),
-        ],
-      ),
-    ),
-  );
-}
-
+    );
+  }
 
   Future<void> _loginUser() async {
     final email = _emailController.text.trim();
@@ -142,20 +139,15 @@ Widget _buildLanguageSelector() {
     authController.login(email, password);
   }
 
- void _showForgotPasswordMessage() {
-  print('=== CURRENT LOCALE: ${Get.locale} ===');
-  print('"show" in Bangla: ${'show'.tr}');
-  print('"hide" in Bangla: ${'hide'.tr}');
-  print('"notice" in Bangla: ${'notice'.tr}');
-  
-  Get.snackbar(
-    'notice'.tr,
-    'featureComingSoon'.tr,
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.blue[100],
-    colorText: Colors.blue[900],
-  );
-}
+  void _showForgotPasswordMessage() {
+    Get.snackbar(
+      'notice'.tr,
+      'featureComingSoon'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blue[100],
+      colorText: Colors.blue[900],
+    );
+  }
 
   @override
   void dispose() {

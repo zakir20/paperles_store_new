@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Add this import
+import 'package:get/get.dart'; 
 
 class TradeLicenseSection extends StatelessWidget {
   final String selectedLanguage;
@@ -23,7 +23,7 @@ class TradeLicenseSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'tradeLicense'.tr, // CHANGED
+          'tradeLicense'.tr, 
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -32,7 +32,7 @@ class TradeLicenseSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'optional'.tr, // CHANGED
+          'optional'.tr, 
           style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF667085),
@@ -50,10 +50,10 @@ class TradeLicenseSection extends StatelessWidget {
     return TextField(
       controller: licenseController,
       decoration: InputDecoration(
-        labelText: 'tradeLicenseNumber'.tr, // CHANGED
+        labelText: 'tradeLicenseNumber'.tr, 
         labelStyle: const TextStyle(color: Color(0xFF667085)),
         floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-        hintText: 'enterTradeLicenseNumber'.tr, // CHANGED
+        hintText: 'enterTradeLicenseNumber'.tr, 
         hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -74,7 +74,7 @@ class TradeLicenseSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'tradeLicenseDocument'.tr, // CHANGED
+          'tradeLicenseDocument'.tr, 
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -107,7 +107,7 @@ class TradeLicenseSection extends StatelessWidget {
                 Text(
                   licenseDocument != null 
                       ? licenseDocument!
-                      : 'uploadDocument'.tr, // CHANGED
+                      : 'uploadDocument'.tr, 
                   style: TextStyle(
                     color: licenseDocument != null ? Colors.green : const Color(0xFF667085),
                     fontSize: 14,
@@ -126,7 +126,7 @@ class TradeLicenseSection extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'remove'.tr, // CHANGED
+                      'remove'.tr, 
                       style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,

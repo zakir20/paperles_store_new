@@ -1,21 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'navigation/app_router.dart';
-import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/translations/app_translations.dart';
-import 'core/controllers/language_controller.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
-  
-  Get.put(AuthController());
-  Get.put(LanguageController());
-  
-  runApp(const MyApp());
-}
+import 'core/bindings/app_bindings.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,8 +17,9 @@ class MyApp extends StatelessWidget {
       getPages: AppRoutes.routes,
       initialRoute: '/splash',
       
-      // TRANSLATIONS
+      initialBinding: AppBindings(),
       translations: AppTranslations(),
+      
       locale: const Locale('en', 'US'),
       fallbackLocale: const Locale('en', 'US'),
     );

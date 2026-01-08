@@ -17,10 +17,16 @@ import '../../utils/document_upload_utils.dart';
 import '../../utils/registration_service.dart';
 import 'simple_location_picker.dart';
 import '../controllers/register_controller.dart';
+import '../../../../core/controllers/language_controller.dart';
 
-class RegisterScreen extends StatelessWidget {
-  RegisterScreen({Key? key}) : super(key: key);
-  
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   final RegisterController registerController = Get.put(RegisterController());
   
   final _fullNameController = TextEditingController();
@@ -52,109 +58,119 @@ class RegisterScreen extends StatelessWidget {
         onLanguagePressed: () => _showLanguageDialog(context),
         onLanguageDialog: () => _showLanguageDialog(context),
       ),
-      body: Obx(() => registerController.isLoading.value
-          ? _buildLoadingScreen()
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProfileImagePicker(
-                    selectedLanguage: registerController.selectedLanguage.value,
-                    profileImage: registerController.profileImage.value,
-                    onImagePressed: () => _showImageSourceDialog(context),
-                    onRemoveImage: () => registerController.profileImage.value = null,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildFormFields(),
-                  const SizedBox(height: 24),
-                  ShopTypeDropdown(
-                    selectedLanguage: registerController.selectedLanguage.value,
-                    selectedShopType: registerController.selectedShopType.value,
-                    shopTypes: _shopTypes,
-                    onChanged: (value) => registerController.selectedShopType.value = value,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildAddressFields(context),
-                  const SizedBox(height: 24),
-                  const Divider(color: Color(0xFFEAECF0)),
-                  const SizedBox(height: 24),
-                  TradeLicenseSection(
-                    selectedLanguage: registerController.selectedLanguage.value,
-                    licenseController: _tradeLicenseController,
-                    licenseDocument: registerController.tradeLicenseDocument.value,
-                    onDocumentUpload: () => _showDocumentSourceDialog(context),
-                    onDocumentRemove: () => registerController.tradeLicenseDocument.value = null,
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(color: Color(0xFFEAECF0)),
-                  const SizedBox(height: 24),
-                  _buildPasswordFields(),
-                  const SizedBox(height: 40),
-                  RegisterButton(
-                    selectedLanguage: registerController.selectedLanguage.value,
-                    isLoading: registerController.isLoading.value,
-                    onPressed: _register,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Obx(() => Text('registering'.tr)), 
-          const Text('(Working offline - No server needed)', 
-               style: TextStyle(fontSize: 12, color: Colors.grey)),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() => ProfileImagePicker(
+                  selectedLanguage: registerController.selectedLanguage.value,
+                  profileImage: registerController.profileImage.value,
+                  onImagePressed: () => _showImageSourceDialog(context),
+                  onRemoveImage: () => registerController.profileImage.value = null,
+                )),
+                const SizedBox(height: 24),
+                _buildFormFields(),
+                const SizedBox(height: 24),
+                Obx(() => ShopTypeDropdown(
+                  selectedLanguage: registerController.selectedLanguage.value,
+                  selectedShopType: registerController.selectedShopType.value,
+                  shopTypes: _shopTypes,
+                  onChanged: (value) => registerController.selectedShopType.value = value,
+                )),
+                const SizedBox(height: 20),
+                _buildAddressFields(context),
+                const SizedBox(height: 24),
+                const Divider(color: Color(0xFFEAECF0)),
+                const SizedBox(height: 24),
+                Obx(() => TradeLicenseSection(
+                  selectedLanguage: registerController.selectedLanguage.value,
+                  licenseController: _tradeLicenseController,
+                  licenseDocument: registerController.tradeLicenseDocument.value,
+                  onDocumentUpload: () => _showDocumentSourceDialog(context),
+                  onDocumentRemove: () => registerController.tradeLicenseDocument.value = null,
+                )),
+                const SizedBox(height: 24),
+                const Divider(color: Color(0xFFEAECF0)),
+                const SizedBox(height: 24),
+                _buildPasswordFields(),
+                const SizedBox(height: 40),
+                Obx(() => RegisterButton(
+                  selectedLanguage: registerController.selectedLanguage.value,
+                  isLoading: registerController.isLoading.value,
+                  onPressed: _register,
+                )),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+          
+          Obx(() {
+            if (registerController.isLoading.value) {
+              return Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text('registering'.tr),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '(Working offline - No server needed)',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
         ],
       ),
     );
   }
 
   Widget _buildFormFields() {
-    return Column( 
+    return Column(
       children: [
         RegisterFormField(
           controller: _fullNameController,
-          label: 'fullName'.tr, 
-          hint: 'enterFullName'.tr, 
+          label: 'fullName'.tr,
+          hint: 'enterFullName'.tr,
           icon: Icons.person_outline,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _shopNameController,
           label: 'shopName'.tr,
-          hint: 'enterShopName'.tr, 
+          hint: 'enterShopName'.tr,
           icon: Icons.store,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _proprietorNameController,
-          label: 'proprietorName'.tr, 
-          hint: 'enterProprietorName'.tr, 
+          label: 'proprietorName'.tr,
+          hint: 'enterProprietorName'.tr,
           icon: Icons.business_center,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _phoneController,
-          label: 'phoneNumber'.tr, 
-          hint: 'enterPhoneNumber'.tr, 
+          label: 'phoneNumber'.tr,
+          hint: 'enterPhoneNumber'.tr,
           icon: Icons.phone,
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 20),
         RegisterFormField(
           controller: _emailController,
-          label: 'email'.tr, 
-          hint: 'enterEmail'.tr, 
+          label: 'email'.tr,
+          hint: 'enterEmail'.tr,
           icon: Icons.email,
           keyboardType: TextInputType.emailAddress,
         ),
@@ -163,13 +179,13 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildAddressFields(BuildContext context) {
-    return Column( 
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RegisterFormField(
           controller: _storeAddressController,
-          label: 'storeAddress'.tr, 
-          hint: 'enterStoreAddress'.tr, 
+          label: 'storeAddress'.tr,
+          hint: 'enterStoreAddress'.tr,
           icon: Icons.location_on,
           maxLines: 3,
         ),
@@ -180,10 +196,10 @@ class RegisterScreen extends StatelessWidget {
             readOnly: true,
             controller: _locationController,
             decoration: InputDecoration(
-              labelText: 'shopLocation'.tr, 
+              labelText: 'shopLocation'.tr,
               labelStyle: const TextStyle(color: Color(0xFF667085)),
               floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-              hintText: 'selectLocation'.tr, 
+              hintText: 'selectLocation'.tr,
               hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -204,27 +220,27 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildPasswordFields() {
-    return Column( 
+    return Column(
       children: [
-        RegisterFormField(
+        Obx(() => RegisterFormField(
           controller: _passwordController,
-          label: 'password'.tr, 
-          hint: 'enterPassword'.tr, 
+          label: 'password'.tr,
+          hint: 'enterPassword'.tr,
           icon: Icons.lock,
           isPassword: true,
           isPasswordVisible: registerController.isPasswordVisible.value,
-          onPasswordVisibilityToggle: () => registerController.isPasswordVisible.value = !registerController.isPasswordVisible.value,
-        ),
+          onPasswordVisibilityToggle: () => registerController.isPasswordVisible.toggle(),
+        )),
         const SizedBox(height: 20),
-        RegisterFormField(
+        Obx(() => RegisterFormField(
           controller: _confirmPasswordController,
-          label: 'confirmPassword'.tr, 
-          hint: 'reEnterPassword'.tr, 
+          label: 'confirmPassword'.tr,
+          hint: 'reEnterPassword'.tr,
           icon: Icons.lock,
           isPassword: true,
           isPasswordVisible: registerController.isConfirmPasswordVisible.value,
-          onPasswordVisibilityToggle: () => registerController.isConfirmPasswordVisible.value = !registerController.isConfirmPasswordVisible.value,
-        ),
+          onPasswordVisibilityToggle: () => registerController.isConfirmPasswordVisible.toggle(),
+        )),
       ],
     );
   }
@@ -242,17 +258,18 @@ class RegisterScreen extends StatelessWidget {
     try {
       final image = await ImagePickerUtils.pickImageFromCamera(_picker, registerController.selectedLanguage.value);
       if (image != null) {
+        print('Image captured: ${image.path}'); 
         registerController.profileImage.value = image;
         Get.snackbar(
-          'success'.tr, 
-          'imageCapturedSuccessfully'.tr, 
+          'success'.tr,
+          'imageCapturedSuccessfully'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
       }
     } catch (e) {
       Get.snackbar(
-        'error'.tr, 
+        'error'.tr,
         '${'cameraError'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
@@ -264,18 +281,19 @@ class RegisterScreen extends StatelessWidget {
     try {
       final image = await ImagePickerUtils.pickImageFromGallery(_picker, registerController.selectedLanguage.value);
       if (image != null) {
+        print('Image selected: ${image.path}'); 
         registerController.profileImage.value = image;
         Get.snackbar(
-          'success'.tr, 
-          'imageSelectedSuccessfully'.tr, 
+          'success'.tr,
+          'imageSelectedSuccessfully'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
       }
     } catch (e) {
       Get.snackbar(
-        'error'.tr, 
-        '${'galleryError'.tr}: $e', 
+        'error'.tr,
+        '${'galleryError'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -295,8 +313,8 @@ class RegisterScreen extends StatelessWidget {
   void _simulateDocumentUpload(String fileName) {
     registerController.tradeLicenseDocument.value = fileName;
     Get.snackbar(
-      'success'.tr, 
-      'documentUploaded'.tr.replaceAll('{fileName}', fileName), 
+      'success'.tr,
+      'documentUploaded'.tr.replaceAll('{fileName}', fileName),
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green,
     );
@@ -306,7 +324,7 @@ class RegisterScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('selectLocation'.tr), 
+        title: Text('selectLocation'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -340,23 +358,47 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-
   void _showLanguageDialog(BuildContext context) {
-    LanguageUtils.showLanguageDialog(
+    showDialog(
       context: context,
-      currentLanguage: registerController.selectedLanguage.value,
-      onLanguageChanged: (language) => registerController.selectedLanguage.value = language,
-      onFlagChanged: (flag) => registerController.selectedFlag.value = flag,
+      builder: (context) => AlertDialog(
+        title: Text('selectLanguage'.tr),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Text('🇺🇸'),
+              title: Text('english'.tr),
+              onTap: () {
+                registerController.selectedLanguage.value = 'English';
+                registerController.selectedFlag.value = '🇺🇸';
+                Get.find<LanguageController>().changeLanguage('English', '🇺🇸', 'en_US');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Text('🇧🇩'),
+              title: Text('bangla'.tr),
+              onTap: () {
+                registerController.selectedLanguage.value = 'বাংলা';
+                registerController.selectedFlag.value = '🇧🇩';
+                Get.find<LanguageController>().changeLanguage('বাংলা', '🇧🇩', 'bn_BD');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Future<void> _register() async {
-    if (_fullNameController.text.isEmpty || 
-        _emailController.text.isEmpty || 
+    if (_fullNameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
       Get.snackbar(
-        'warning'.tr, 
-        'fillRequiredInfo'.tr, 
+        'warning'.tr,
+        'fillRequiredInfo'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
       );
@@ -375,5 +417,20 @@ class RegisterScreen extends StatelessWidget {
       password: _passwordController.text,
       confirmPassword: _confirmPasswordController.text,
     );
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _shopNameController.dispose();
+    _proprietorNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _storeAddressController.dispose();
+    _tradeLicenseController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _locationController.dispose();
+    super.dispose();
   }
 }

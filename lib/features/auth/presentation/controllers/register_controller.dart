@@ -36,28 +36,24 @@ class RegisterController extends GetxController {
     try {
       isLoading(true);
       
-      // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
       
-      // Success - USE .tr
       Get.snackbar(
-        'success'.tr, // CHANGED
-        'registrationSuccessful'.tr, // CHANGED
+        'success'.tr, 
+        'registrationSuccessful'.tr, 
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
       
-      // Navigate to login
       Get.offAllNamed('/login');
       
-      // Clear form
       clearForm();
       
     } catch (e) {
       Get.snackbar(
-        'error'.tr, // CHANGED
-        '${'errorOccurred'.tr}: $e', // CHANGED: Need to add key
+        'error'.tr, 
+        '${'errorOccurred'.tr}: $e', 
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -67,7 +63,6 @@ class RegisterController extends GetxController {
     }
   }
   
-  // ========== HELPER METHODS ==========
   
   void clearForm() {
     selectedShopType.value = null;
@@ -77,12 +72,10 @@ class RegisterController extends GetxController {
     isConfirmPasswordVisible.value = false;
   }
   
-  // ========== INITIALIZATION ==========
   
   @override
   void onInit() {
     super.onInit();
-    // Initialize anything here
   }
   
   @override

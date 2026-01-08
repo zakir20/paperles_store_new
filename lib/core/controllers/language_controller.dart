@@ -1,22 +1,30 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 
 class LanguageController extends GetxController {
-  final selectedLanguage = 'English (EN)'.obs;
+  final selectedLanguage = 'English'.obs;
   final selectedFlag = '🇺🇸'.obs;
   
-  bool get isBangla => selectedLanguage.value.contains('Bangla') || 
-                       selectedLanguage.value.contains('বাংলা');
+  @override
+  void onInit() {
+    super.onInit();
+
+  }
   
   void changeLanguage(String language, String flag, String localeCode) {
+    print('=== Changing language to: $language ===');
+    
     selectedLanguage.value = language;
     selectedFlag.value = flag;
     
-    final parts = localeCode.split('_');
-    if (parts.length == 2) {
-      Get.updateLocale(Locale(parts[0], parts[1])); 
+    if (localeCode == 'bn_BD') {
+      Get.updateLocale(const Locale('bn', 'BD'));
     } else {
-      Get.updateLocale(Locale(localeCode)); 
+      Get.updateLocale(const Locale('en', 'US'));
     }
+    
+
+    
+    print('Locale updated to: ${Get.locale}');
   }
 }

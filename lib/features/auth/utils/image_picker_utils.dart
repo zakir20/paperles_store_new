@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Add this import
+import 'package:get/get.dart'; 
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerUtils {
@@ -17,7 +17,7 @@ class ImagePickerUtils {
         return File(image.path);
       }
     } catch (e) {
-      throw Exception('${'cameraError'.tr}: $e'); // CHANGED
+      throw Exception('${'cameraError'.tr}: $e'); 
     }
     return null;
   }
@@ -35,8 +35,7 @@ class ImagePickerUtils {
         return File(image.path);
       }
     } catch (e) {
-      throw Exception('${'galleryError'.tr}: $e'); // CHANGED
-    }
+      throw Exception('${'galleryError'.tr}: $e'); 
     return null;
   }
 
@@ -49,13 +48,13 @@ class ImagePickerUtils {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('selectImageSource'.tr), // CHANGED
+        title: Text('selectImageSource'.tr), 
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Color(0xFF2E90FA)),
-              title: Text('camera'.tr), // CHANGED: Already exists
+              title: Text('camera'.tr), 
               onTap: () {
                 Navigator.pop(context);
                 onCameraPressed();
@@ -63,7 +62,7 @@ class ImagePickerUtils {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Color(0xFF2E90FA)),
-              title: Text('gallery'.tr), // CHANGED: Already exists
+              title: Text('gallery'.tr), 
               onTap: () {
                 Navigator.pop(context);
                 onGalleryPressed();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Add this import
-
+import 'package:get/get.dart'; 
 class RegisterButton extends StatelessWidget {
   final String selectedLanguage;
   final bool isLoading;
@@ -36,7 +35,7 @@ class RegisterButton extends StatelessWidget {
                 ),
               )
             : Text(
-                'register'.tr, // CHANGED: Already exists from login
+                'register'.tr, 
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

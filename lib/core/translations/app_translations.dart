@@ -4,9 +4,18 @@ class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
     'en_US': {
-      // ... your existing keys ...
-      
-      // ADD THESE REGISTRATION KEYS:
+      'email': 'Email',
+      'password': 'Password',
+      'show': 'Show',
+      'hide': 'Hide',
+      'forgotPassword': 'Forgot Password?',
+      'login': 'Login',
+      'dontHaveAccount': "Don't have an account?",
+      'userRegistration': 'User Registration',
+      'confirmPassword': 'Confirm Password',
+      'enterEmail': 'Enter your email',
+      'enterPassword': 'Enter your password',
+      'register': 'Register',
       'fullName': 'Full Name',
       'enterFullName': 'Enter your full name',
       'shopName': 'Shop Name',
@@ -40,7 +49,6 @@ class AppTranslations extends Translations {
       'selectLanguage': 'Select Language',
       'english': 'English',
       'bangla': 'বাংলা',
-      'hindi': 'Hindi',
       'fillAllRequiredFields': 'Please fill all required fields',
       'imageCapturedSuccessfully': 'Image captured successfully',
       'imageSelectedSuccessfully': 'Image selected successfully',
@@ -57,12 +65,22 @@ class AppTranslations extends Translations {
       'show': 'Show',
       'hide': 'Hide',
       'registering': 'Registering...',
+      'english': 'English',
+      'bangla': 'Bangla',
+      'error': 'Error',
+      'emailRequired': 'Email is required',
+      'featureComingSoon': 'This feature is coming soon',
     },
     
     'bn_BD': {
-      // ... your existing keys ...
-      
-      // ADD THESE REGISTRATION KEYS IN BANGLA:
+      'email': 'ইমেইল',
+      'password': 'পাসওয়ার্ড',
+      'show': 'দেখান',
+      'hide': 'লুকান',
+      'forgotPassword': 'পাসওয়ার্ড ভুলে গেছেন?',
+      'login': 'লগইন',
+      'dontHaveAccount': 'অ্যাকাউন্ট নেই?',
+      'register': 'নিবন্ধন',
       'fullName': 'পুরো নাম',
       'enterFullName': 'আপনার পুরো নাম লিখুন',
       'shopName': 'দোকানের নাম',
@@ -94,9 +112,12 @@ class AppTranslations extends Translations {
       'galleryError': 'গ্যালারি ত্রুটি',
       'selectImageSource': 'ছবির উৎস নির্বাচন করুন',
       'selectLanguage': 'ভাষা নির্বাচন করুন',
+      'userRegistration': 'ব্যবহারকারী নিবন্ধন',
+      'confirmPassword': 'পাসওয়ার্ড নিশ্চিত করুন',
+      'enterEmail': 'আপনার ইমেইল লিখুন',
+      'enterPassword': 'আপনার পাসওয়ার্ড লিখুন',
       'english': 'ইংরেজি',
       'bangla': 'বাংলা',
-      'hindi': 'হিন্দি',
       'fillAllRequiredFields': 'অনুগ্রহ করে প্রয়োজনীয় সকল তথ্য পূরণ করুন',
       'imageCapturedSuccessfully': 'ছবি সফলভাবে তোলা হয়েছে',
       'imageSelectedSuccessfully': 'ছবি সফলভাবে নির্বাচন করা হয়েছে',
@@ -113,6 +134,11 @@ class AppTranslations extends Translations {
       'show': 'দেখান',
       'hide': 'লুকান',
       'registering': 'নিবন্ধন করা হচ্ছে...',
+      'english': 'ইংরেজি',
+    'bangla': 'বাংলা',
+    'error': 'ত্রুটি',
+    'emailRequired': 'ইমেইল প্রয়োজন',
+    'featureComingSoon': 'এই বৈশিষ্ট্য শীঘ্রই আসছে',
     },
   };
 }

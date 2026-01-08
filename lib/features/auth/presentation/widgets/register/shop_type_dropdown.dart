@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Add this import
+import 'package:get/get.dart'; 
 
 class ShopTypeDropdown extends StatelessWidget {
   final String selectedLanguage;
@@ -21,7 +21,7 @@ class ShopTypeDropdown extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'shopType'.tr, // CHANGED: Use .tr
+          'shopType'.tr, 
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -42,13 +42,13 @@ class ShopTypeDropdown extends StatelessWidget {
               prefixIcon: const Icon(Icons.category, color: Color(0xFF667085), size: 20),
             ),
             hint: Text(
-              'selectShopType'.tr, // CHANGED: Use .tr
+              'selectShopType'.tr, 
               style: const TextStyle(color: Color(0xFF667085)),
             ),
             items: shopTypes.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value), // Shop type values stay as is (Grocery Store, etc.)
+                child: Text(value), 
               );
             }).toList(),
             onChanged: onChanged,

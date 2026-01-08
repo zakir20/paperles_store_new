@@ -12,13 +12,13 @@ class DocumentUploadUtils {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('uploadDocument'.tr), // CHANGED: Already exists from trade license
+        title: Text('uploadDocument'.tr), 
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Color(0xFF2E90FA)),
-              title: Text('camera'.tr), // CHANGED: Need to add key
+              title: Text('camera'.tr), 
               onTap: () {
                 Navigator.pop(context);
                 onCameraPressed();
@@ -26,7 +26,7 @@ class DocumentUploadUtils {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Color(0xFF2E90FA)),
-              title: Text('gallery'.tr), // CHANGED: Need to add key
+              title: Text('gallery'.tr), 
               onTap: () {
                 Navigator.pop(context);
                 onGalleryPressed();
@@ -34,7 +34,7 @@ class DocumentUploadUtils {
             ),
             ListTile(
               leading: const Icon(Icons.insert_drive_file, color: Color(0xFF2E90FA)),
-              title: Text('chooseFile'.tr), // CHANGED: Need to add key
+              title: Text('chooseFile'.tr), 
               onTap: () {
                 Navigator.pop(context);
                 onFilePressed();
