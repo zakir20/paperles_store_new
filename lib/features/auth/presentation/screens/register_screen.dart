@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/services/api_service.dart';
 import '../widgets/register/register_app_bar.dart';
 import '../widgets/register/profile_image_picker.dart';
 import '../widgets/register/form_field_builder.dart';
@@ -18,6 +17,7 @@ import '../../utils/registration_service.dart';
 import 'simple_location_picker.dart';
 import '../controllers/register_controller.dart';
 import '../../../../core/controllers/language_controller.dart';
+import '../../../../core/services/json_registration.dart'; 
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -192,29 +192,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 20),
         GestureDetector(
           onTap: () => _openLocationPicker(context),
-          child: TextField(
-            readOnly: true,
-            controller: _locationController,
-            decoration: InputDecoration(
-              labelText: 'shopLocation'.tr,
-              labelStyle: const TextStyle(color: Color(0xFF667085)),
-              floatingLabelStyle: const TextStyle(color: Color(0xFF2E90FA)),
-              hintText: 'selectLocation'.tr,
-              hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
+          child: AbsorbPointer(
+            child: TextField(
+              readOnly: true,
+              controller: _locationController,
+              decoration: InputDecoration(
+                labelText: 'shopLocation'.tr,
+                labelStyle: TextStyle(
+                  color: _locationController.text.isEmpty ? Colors.red : Color(0xFF667085),
+                  fontWeight: _locationController.text.isEmpty ? FontWeight.normal : FontWeight.bold,
+                ),
+                hintText: 'selectLocation'.tr,
+                hintStyle: const TextStyle(color: Color(0xFF667085), fontSize: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: _locationController.text.isEmpty ? Colors.red : Color(0xFFD0D5DD),
+                    width: _locationController.text.isEmpty ? 2 : 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: _locationController.text.isEmpty ? Colors.red : Color(0xFF2E90FA),
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                prefixIcon: Icon(
+                  Icons.location_on, 
+                  color: _locationController.text.isEmpty ? Colors.red : Color(0xFF667085), 
+                  size: 20
+                ),
+                suffixIcon: Icon(
+                  _locationController.text.isEmpty ? Icons.arrow_drop_down : Icons.check_circle,
+                  color: _locationController.text.isEmpty ? Color(0xFF667085) : Colors.green,
+                ),
+                filled: _locationController.text.isNotEmpty,
+                fillColor: _locationController.text.isNotEmpty ? Colors.green[50] : null,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF2E90FA)),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              prefixIcon: const Icon(Icons.location_on, color: Color(0xFF667085), size: 20),
-              suffixIcon: const Icon(Icons.arrow_drop_down, color: Color(0xFF667085)),
             ),
           ),
         ),
+        if (_locationController.text.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 8, top: 4),
+            child: Text(
+              '⚠️ Please select a location',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        if (_locationController.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 8, top: 4),
+            child: Text(
+              '✅ Selected: ${_locationController.text}',
+              style: TextStyle(color: Colors.green, fontSize: 12),
+            ),
+          ),
       ],
     );
   }
@@ -258,7 +293,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final image = await ImagePickerUtils.pickImageFromCamera(_picker, registerController.selectedLanguage.value);
       if (image != null) {
-        print('Image captured: ${image.path}'); 
         registerController.profileImage.value = image;
         Get.snackbar(
           'success'.tr,
@@ -281,7 +315,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final image = await ImagePickerUtils.pickImageFromGallery(_picker, registerController.selectedLanguage.value);
       if (image != null) {
-        print('Image selected: ${image.path}'); 
         registerController.profileImage.value = image;
         Get.snackbar(
           'success'.tr,
@@ -332,7 +365,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               leading: const Icon(Icons.location_on),
               title: const Text('Dhaka, Bangladesh'),
               onTap: () {
-                _locationController.text = 'Dhaka, Bangladesh';
+                setState(() {
+                  _locationController.text = 'Dhaka, Bangladesh';
+                });
                 Navigator.pop(context);
               },
             ),
@@ -340,7 +375,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               leading: const Icon(Icons.location_on),
               title: const Text('Chittagong, Bangladesh'),
               onTap: () {
-                _locationController.text = 'Chittagong, Bangladesh';
+                setState(() {
+                  _locationController.text = 'Chittagong, Bangladesh';
+                });
                 Navigator.pop(context);
               },
             ),
@@ -348,7 +385,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               leading: const Icon(Icons.location_on),
               title: const Text('Sylhet, Bangladesh'),
               onTap: () {
-                _locationController.text = 'Sylhet, Bangladesh';
+                setState(() {
+                  _locationController.text = 'Sylhet, Bangladesh';
+                });
                 Navigator.pop(context);
               },
             ),
@@ -393,15 +432,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
-    if (_fullNameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      Get.snackbar(
-        'warning'.tr,
-        'fillRequiredInfo'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange,
-      );
+    // Check ALL required fields
+    if (_fullNameController.text.isEmpty) {
+      Get.snackbar('Missing Information', 'Full Name is required', backgroundColor: Colors.orange);
+      return;
+    }
+    if (_emailController.text.isEmpty) {
+      Get.snackbar('Missing Information', 'Email is required', backgroundColor: Colors.orange);
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      Get.snackbar('Missing Information', 'Password is required', backgroundColor: Colors.orange);
+      return;
+    }
+    if (_locationController.text.isEmpty) {
+      Get.snackbar('Missing Information', 'Please select shop location', backgroundColor: Colors.orange);
+      return;
+    }
+    if (_tradeLicenseController.text.isEmpty) {
+      Get.snackbar('Missing Information', 'Trade License is required', backgroundColor: Colors.orange);
       return;
     }
 

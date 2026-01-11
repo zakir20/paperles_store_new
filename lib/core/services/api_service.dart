@@ -100,17 +100,17 @@ class ApiService {
   }
 
   // ========== TEST METHODS ==========
-  static Future<void> testJsonStorage() async {
-    await _json.testJsonStorage();
-  }
+  // static Future<void> testJsonStorage() async {
+  //   await _json.testJsonStorage();
+  // }
 
-  static Future<void> testSuppliersStorage() async {
-    await _json.testSuppliersStorage();
-  }
+  // static Future<void> testSuppliersStorage() async {
+  //   await _json.testSuppliersStorage();
+  // }
 
-  static Future<void> testAllData() async {
-    await _json.testAllData();
-  }
+  // static Future<void> testAllData() async {
+  //   await _json.testAllData();
+  // }
   // ========== CUSTOMER MANAGEMENT ==========
 static Future<Map<String, dynamic>> addCustomer(Map<String, dynamic> customerData) async {
   return await _json.addCustomer(customerData);

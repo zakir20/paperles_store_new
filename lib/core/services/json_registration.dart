@@ -1,17 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:get/get.dart'; // ADD THIS
+import 'package:flutter/material.dart'; 
+import 'package:get/get.dart'; 
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http; 
 
 class JsonRegistration {
   static JsonRegistration? _instance;
   factory JsonRegistration() => _instance ??= JsonRegistration._internal();
   JsonRegistration._internal();
 
+  // ========== API CONFIGURATION ==========
+  static const String _apiBaseUrl = 'http://192.168.68.113/paperless_store_new/api';
+
   // ========== GETX FOR USER MANAGEMENT ONLY ==========
-  // Reactive current user for GetX
   final Rx<Map<String, dynamic>?> currentUser = Rx<Map<String, dynamic>?>(null);
+  final RxBool isOnlineMode = false.obs; // Track online/offline mode
 
   // Files for different data types
   final String _usersFile = 'paperless_store_users.json';
@@ -19,7 +24,77 @@ class JsonRegistration {
   final String _brandsFile = 'paperless_store_brands.json';
   final String _categoriesFile = 'paperless_store_categories.json';
   final String _productsFile = 'paperless_store_products.json';
-  final String _customersFile = 'paperless_store_customers.json'; // Added missing
+  final String _customersFile = 'paperless_store_customers.json';
+
+  // ========== MODE MANAGEMENT ==========
+  Future<void> initMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    isOnlineMode.value = prefs.getBool('online_mode') ?? false;
+    print(' Initialized mode: ${isOnlineMode.value ? 'ONLINE' : 'OFFLINE'}');
+  }
+
+  Future<void> toggleOnlineMode(bool value) async {
+    isOnlineMode.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('online_mode', value);
+    
+    Get.snackbar(
+      'Mode Changed',
+      value ? 'Online Mode: Using MySQL Database' : 'Offline Mode: Using Local Storage',
+      duration: Duration(seconds: 2),
+    );
+    print(' Mode changed to: ${value ? 'ONLINE' : 'OFFLINE'}');
+  }
+
+  // ========== API HELPER METHODS ==========
+  Future<Map<String, dynamic>> _callApi(
+    String endpoint, 
+    Map<String, dynamic> data,
+    String method
+  ) async {
+    try {
+      final url = Uri.parse('$_apiBaseUrl/$endpoint');
+      
+      print('API Request: $method $url');
+
+      http.Response response;
+      
+      if (method == 'POST') {
+        response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: json.encode(data),
+        ).timeout(Duration(seconds: 10));
+      } else {
+        response = await http.get(url).timeout(Duration(seconds: 10));
+      }
+
+      print('📡 Response Status: ${response.statusCode}');
+
+      final responseData = json.decode(response.body);
+      
+      // Check if PHP returned success
+      final bool isSuccess = responseData['success'] == true;
+      
+      return {
+        'success': isSuccess,
+        'statusCode': response.statusCode,
+        'data': responseData,
+        'message': responseData['message'] ?? (isSuccess ? 'Success' : 'Failed'),
+      };
+      
+    } catch (e) {
+      print('❌ API Error: $e');
+      return {
+        'success': false,
+        'message': 'Connection failed: $e',
+        'error': e.toString(),
+      };
+    }
+  }
 
   // ========== FILE HELPER METHODS ==========
   Future<File> _getFile(String fileName) async {
@@ -57,28 +132,27 @@ class JsonRegistration {
     }
   }
 
-  // ========== USER MANAGEMENT WITH GETX ==========
+  // ========== DUAL MODE USER REGISTRATION ==========
   Future<Map<String, dynamic>> registerUser(Map<String, dynamic> userData) async {
-    print('📝 JSON Registration: Starting...');
+    print(' Registration: Starting...');
     
     try {
-      final List<Map<String, dynamic>> users = await _readJsonFile(_usersFile);
-
-      // Check if email/phone exists
-      final emailExists = users.any((user) => user['email'] == userData['email']);
-      final phoneExists = users.any((user) => user['phone'] == userData['phone']);
+      // Validate required fields
+      final requiredFields = ['full_name', 'phone', 'email', 'shop_type', 'store_address', 'location', 'trade_license', 'password'];
       
-      if (emailExists) {
-        Get.snackbar('Error', 'Email already registered'); // GETX
-        return {'success': false, 'message': 'Email already registered'};
-      }
-      if (phoneExists) {
-        Get.snackbar('Error', 'Phone already registered'); // GETX
-        return {'success': false, 'message': 'Phone already registered'};
+      for (final field in requiredFields) {
+        if (userData[field] == null || userData[field]!.toString().isEmpty) {
+          return {
+            'success': false,
+            'message': 'Field "$field" is required'
+          };
+        }
       }
 
-      // Create simple user record
+      // Create user record - USE HASHED PASSWORD FOR PHP
       final userId = 'USER_${DateTime.now().millisecondsSinceEpoch}';
+      final hashedPassword = _simpleHash(userData['password'] ?? '');
+      
       final userRecord = {
         'user_id': userId,
         'full_name': userData['full_name'] ?? '',
@@ -90,86 +164,306 @@ class JsonRegistration {
         'store_address': userData['store_address'] ?? '',
         'location': userData['location'] ?? '',
         'trade_license': userData['trade_license'] ?? '',
-        'password': _simpleHash(userData['password'] ?? ''),
+        'password': hashedPassword, // Send HASHED password to PHP
         'registered_at': DateTime.now().toIso8601String(),
         'status': 'active',
       };
 
-      // Save to file
-      users.add(userRecord);
-      final saveResult = await _writeJsonFile(_usersFile, users);
-      if (!saveResult['success']) {
-        return saveResult;
-      }
-
-      // Update GetX reactive user
-      currentUser.value = userRecord;
-
-      Get.snackbar( // GETX
-        'Success',
-        'Registration successful!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.primaryColor,
-      );
-
-      print('✅ JSON Registration: User saved successfully');
+      print(' Current Mode: ${isOnlineMode.value ? "ONLINE" : "OFFLINE"}');
       
-      return {
-        'success': true,
-        'message': 'Registration successful!',
-        'user_id': userId,
-        'user_data': userRecord,
-      };
+      // ========== TRY ONLINE IF MODE IS ON ==========
+      if (isOnlineMode.value) {
+        print(' ONLINE MODE: Attempting MySQL database save...');
+        
+        try {
+          final response = await http.post(
+            Uri.parse('$_apiBaseUrl/register.php'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(userRecord),
+          ).timeout(Duration(seconds: 10));
+          
+          print('📥 Response Status: ${response.statusCode}');
+          
+          Map<String, dynamic> responseData;
+          try {
+            responseData = json.decode(response.body);
+          } catch (e) {
+            print('❌ JSON Parse Error: $e');
+            responseData = {'success': false, 'message': 'Invalid server response'};
+          }
+          
+          if (response.statusCode == 201 || response.statusCode == 200) {
+            if (responseData['success'] == true) {
+              print('✅ MySQL DATABASE SAVE SUCCESSFUL!');
+              
+              // Also save locally
+              await _saveUserToLocalJson(userRecord);
+              currentUser.value = userRecord;
+              
+              Get.snackbar(
+                '✅ Success',
+                'Registration successful! Please login.',
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              );
+              
+              return {
+                'success': true,
+                'message': 'Registration successful! Please login.',
+                'user_id': userId,
+                'server_id': responseData['store_id'] ?? responseData['user_id'],
+                'mode': 'online',
+              };
+            } else {
+              print('❌ MySQL Error: ${responseData['message']}');
+              Get.snackbar(
+                '❌ Error',
+                responseData['message'] ?? 'Registration failed',
+                backgroundColor: Colors.red,
+              );
+            }
+          } else {
+            print('❌ HTTP Error: ${response.statusCode}');
+            Get.snackbar(
+              '❌ Server Error',
+              'HTTP ${response.statusCode}',
+              backgroundColor: Colors.red,
+            );
+          }
+        } catch (e) {
+          print('❌ API Call Failed: $e');
+          Get.snackbar(
+            '⚠️ Connection Error',
+            'Server timeout, saving locally',
+            backgroundColor: Colors.orange,
+          );
+        }
+        
+        print('⚠️ MySQL failed, falling back to local JSON...');
+      }
+      
+      // ========== SAVE TO LOCAL JSON ==========
+      print('💾 Saving to local JSON...');
+      final localResult = await _saveUserToLocalJson(userRecord);
+      
+      if (localResult['success']) {
+        currentUser.value = userRecord;
+        
+        Get.snackbar(
+          isOnlineMode.value ? '⚠️ Saved Locally' : '✅ Success',
+          isOnlineMode.value ? 
+            'Saved locally (server failed). Please login.' :
+            'Registration saved locally! Please login.',
+          backgroundColor: isOnlineMode.value ? Colors.orange : Get.theme.primaryColor,
+          duration: Duration(seconds: 3),
+        );
+        
+        return {
+          'success': true,
+          'message': isOnlineMode.value ? 
+            'Saved locally (server failed). Please login.' :
+            'Registration saved locally! Please login.',
+          'user_id': userId,
+          'mode': isOnlineMode.value ? 'offline_fallback' : 'offline',
+        };
+      } else {
+        Get.snackbar(
+          '❌ Error',
+          localResult['message'] ?? 'Registration failed',
+          backgroundColor: Colors.red,
+        );
+        return localResult;
+      }
+      
     } catch (e) {
-      Get.snackbar('Error', 'Registration failed: $e'); // GETX
-      print('❌ JSON Registration Error: $e');
+      print('❌ Registration Error: $e');
+      Get.snackbar(
+        '❌ Error',
+        'Registration failed: $e',
+        backgroundColor: Colors.red,
+      );
       return {'success': false, 'message': 'Registration failed: $e'};
     }
   }
-
-  Future<Map<String, dynamic>> loginUser(String email, String password) async {
+  
+  // Helper: Save user to local JSON
+  Future<Map<String, dynamic>> _saveUserToLocalJson(Map<String, dynamic> userRecord) async {
     try {
       final List<Map<String, dynamic>> users = await _readJsonFile(_usersFile);
       
-      if (users.isEmpty) {
-        Get.snackbar('Error', 'No users found. Please register first.'); // GETX
-        return {'success': false, 'message': 'No users found. Please register first.'};
+      // Check duplicates
+      final emailExists = users.any((user) => user['email'] == userRecord['email']);
+      final phoneExists = users.any((user) => user['phone'] == userRecord['phone']);
+      
+      if (emailExists) {
+        return {'success': false, 'message': 'Email already registered'};
+      }
+      if (phoneExists) {
+        return {'success': false, 'message': 'Phone already registered'};
+      }
+      
+      users.add(userRecord);
+      final saveResult = await _writeJsonFile(_usersFile, users);
+      
+      if (saveResult['success']) {
+        print('✅ User saved to local JSON');
+      }
+      
+      return saveResult;
+    } catch (e) {
+      print('❌ Error saving to local JSON: $e');
+      return {'success': false, 'message': 'Failed to save locally: $e'};
+    }
+  }
+
+  // ========== DUAL MODE LOGIN ==========
+  Future<Map<String, dynamic>> loginUser(String email, String password) async {
+    print('🔑 Login: Starting...');
+    
+    try {
+      if (email.isEmpty || password.isEmpty) {
+        return {'success': false, 'message': 'Email and password are required'};
       }
 
       final hashedPassword = _simpleHash(password);
       
-      // Find user
+      print('🔄 Mode: ${isOnlineMode.value ? "ONLINE" : "OFFLINE"}');
+      
+      if (isOnlineMode.value) {
+        // ========== ONLINE MODE: Login via API ==========
+        print('🌐 Attempting online login...');
+        
+        final apiResult = await _callApi('login.php', {
+          'email': email,
+          'password': hashedPassword,
+        }, 'POST');
+        
+        if (apiResult['success'] && apiResult['data']['success'] == true) {
+          print('✅ Online login successful');
+          
+          final userData = apiResult['data']['user'];
+          
+          // Update GetX reactive user
+          currentUser.value = userData;
+          
+          // Also save to local for offline access
+          await _syncUserToLocal(userData);
+          
+          Get.snackbar(
+            'Success',
+            'Login successful! (Online)',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          
+          return {
+            'success': true,
+            'message': 'Login successful! (Online)',
+            'user_data': userData,
+            'mode': 'online',
+          };
+        } else {
+          // Online login failed, try local
+          print('⚠️ Online login failed, trying local...');
+          Get.snackbar(
+            'Warning',
+            'Online login failed. Trying local login.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange,
+          );
+          
+          // Continue to try local login
+        }
+      }
+      
+      // ========== OFFLINE MODE or Fallback: Login from Local JSON ==========
+      print('💾 Attempting local login...');
+      
+      final List<Map<String, dynamic>> users = await _readJsonFile(_usersFile);
+      
+      if (users.isEmpty) {
+        Get.snackbar('Error', 'No users found. Please register first.');
+        return {'success': false, 'message': 'No users found. Please register first.'};
+      }
+
       final user = users.firstWhere(
         (u) => u['email'] == email && u['password'] == hashedPassword,
         orElse: () => {},
       );
 
       if (user.isEmpty) {
-        Get.snackbar('Error', 'Invalid email or password'); // GETX
+        Get.snackbar('Error', 'Invalid email or password');
         return {'success': false, 'message': 'Invalid email or password'};
       }
 
       // Update GetX reactive user
       currentUser.value = user;
 
-      Get.snackbar( // GETX
-        'Success',
-        'Login successful!',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Success', 'Login successful! (Offline)');
 
+      print('✅ Local login successful');
+      
       return {
         'success': true,
-        'message': 'Login successful!',
+        'message': 'Login successful! (Offline)',
         'user_data': user,
+        'mode': 'offline',
       };
+      
     } catch (e) {
-      Get.snackbar('Error', 'Login error: $e'); // GETX
+      print('❌ Login Error: $e');
+      Get.snackbar('Error', 'Login error: $e');
       return {'success': false, 'message': 'Login error: $e'};
     }
   }
 
-  // GETX METHODS
+  // Helper: Sync user to local storage
+  Future<void> _syncUserToLocal(Map<String, dynamic> user) async {
+    try {
+      final List<Map<String, dynamic>> users = await _readJsonFile(_usersFile);
+      
+      // Check if user exists
+      final index = users.indexWhere((u) => 
+        u['user_id'] == user['user_id'] || u['email'] == user['email']
+      );
+      
+      if (index != -1) {
+        // Update existing
+        users[index] = user;
+      } else {
+        // Add new
+        users.add(user);
+      }
+      
+      await _writeJsonFile(_usersFile, users);
+      print('✅ User synced to local storage');
+    } catch (e) {
+      print('❌ Error syncing user to local: $e');
+    }
+  }
+
+  // ========== TEST CONNECTION METHOD ==========
+  Future<void> testApiConnection() async {
+    try {
+      print('🔗 Testing API connection...');
+      
+      final url = Uri.parse('$_apiBaseUrl/test_connection.php');
+      final response = await http.get(url);
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        Get.snackbar('✅ Success', 'API Connection working!');
+        print('✅ API Connection successful!');
+      } else {
+        Get.snackbar('❌ Failed', 'API Connection failed');
+        print('❌ API Connection failed');
+      }
+    } catch (e) {
+      Get.snackbar('❌ Error', 'Connection test failed: $e');
+      print('❌ Connection test failed: $e');
+    }
+  }
+
+  // ========== GETX METHODS ==========
   Future<Map<String, dynamic>?> getCurrentUser() async {
     return currentUser.value;
   }
@@ -181,6 +475,11 @@ class JsonRegistration {
   Future<void> logout() async {
     currentUser.value = null;
     Get.snackbar('Logged Out', 'You have been logged out'); 
+  }
+
+  // ========== HELPER METHODS ==========
+  String _simpleHash(String input) {
+    return 'hash_${input.hashCode.abs()}';
   }
 
   // ========== SUPPLIER MANAGEMENT ==========
@@ -452,75 +751,6 @@ class JsonRegistration {
     } catch (e) {
       return {'success': false, 'message': 'Failed to update product: $e'};
     }
-  }
-
-  // ========== HELPER METHODS ==========
-  String _simpleHash(String input) {
-    return 'hash_${input.hashCode.abs()}';
-  }
-
-  // ========== TEST METHODS ==========
-  Future<void> testJsonStorage() async {
-    try {
-      final files = [_usersFile, _suppliersFile, _brandsFile, _categoriesFile, _productsFile];
-      
-      for (final fileName in files) {
-        final file = await _getFile(fileName);
-        final exists = await file.exists();
-        print('📁 $fileName exists: $exists');
-        print('📁 $fileName path: ${file.path}');
-        
-        if (exists) {
-          final contents = await file.readAsString();
-          print('📁 $fileName size: ${contents.length} characters');
-          if (contents.isNotEmpty) {
-            final data = json.decode(contents);
-            print('📁 Total records in $fileName: ${data.length}');
-          }
-        }
-        print('---');
-      }
-    } catch (e) {
-      print('❌ JSON Test Error: $e');
-    }
-  }
-
-  Future<void> testSuppliersStorage() async {
-    try {
-      final file = await _getFile(_suppliersFile);
-      final exists = await file.exists();
-      print('📁 Suppliers File exists: $exists');
-      print('📁 Suppliers File path: ${file.path}');
-      
-      if (exists) {
-        final contents = await file.readAsString();
-        print('📁 Suppliers File size: ${contents.length} characters');
-        if (contents.isNotEmpty) {
-          final suppliers = json.decode(contents);
-          print('📁 Total suppliers in file: ${suppliers.length}');
-        }
-      }
-    } catch (e) {
-      print('❌ Suppliers Test Error: $e');
-    }
-  }
-
-  Future<void> testAllData() async {
-    print('📊 === TESTING ALL JSON DATA ===');
-    
-    final users = await getAllSuppliers();
-    print('👥 Total Users: ${(await _readJsonFile(_usersFile)).length}');
-    print('🏭 Total Suppliers: ${users.length}');
-    print('🏷️ Total Brands: ${(await getAllBrands()).length}');
-    print('📂 Total Categories: ${(await getAllCategories()).length}');
-    print('📦 Total Products: ${(await getAllProducts()).length}');
-    
-    print('📊 Suppliers List:');
-    for (final supplier in users) {
-      print('  - ${supplier['name']} (${supplier['phone']})');
-    }
-    
-    print('📊 === TEST COMPLETE ===');
   }
 
   // ========== DELETE METHODS ==========
