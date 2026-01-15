@@ -5,30 +5,40 @@ import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial(isPasswordVisible: false)) {
     
+    // 1. Handle Show/Hide Password Toggle
     on<TogglePasswordVisibilityEvent>((event, emit) {
       emit(AuthInitial(isPasswordVisible: !state.isPasswordVisible));
     });
 
+    // 2. Handle Login Logic
     on<LoginEvent>((event, emit) async {
-      final currentVisibility = state.isPasswordVisible;
+      emit(AuthLoading(isPasswordVisible: state.isPasswordVisible));
+      await Future.delayed(const Duration(seconds: 2)); // Simulate API
       
-      if (event.email.isEmpty || event.password.isEmpty) {
-        emit(AuthError("Please fill all fields", isPasswordVisible: currentVisibility));
-        return;
+      if (event.email == "zakir@mail.com" && event.password == "123456") {
+        emit(AuthSuccess(isPasswordVisible: state.isPasswordVisible));
+      } else {
+        emit(AuthError("Invalid credentials", isPasswordVisible: state.isPasswordVisible));
       }
+    });
 
-      emit(AuthLoading(isPasswordVisible: currentVisibility));
+    // 3. Handle Registration Logic (The "Done" process)
+    on<RegisterSubmitted>((event, emit) async {
+      emit(AuthLoading(isPasswordVisible: state.isPasswordVisible));
 
       try {
-        await Future.delayed(const Duration(seconds: 2));
+        // --- This is where the magic happens ---
+        // In the future, you will call: await repository.register(event.registrantName, ...)
         
-        if (event.email == "admin@mail.com" && event.password == "123456") {
-          emit(AuthSuccess(isPasswordVisible: currentVisibility));
-        } else {
-          emit(AuthError("Invalid email or password", isPasswordVisible: currentVisibility));
-        }
+        print("Registering: ${event.shopName} for ${event.registrantName}");
+        
+        // Simulating network delay
+        await Future.delayed(const Duration(seconds: 3));
+
+        // On Success
+        emit(AuthSuccess(isPasswordVisible: state.isPasswordVisible));
       } catch (e) {
-        emit(AuthError("Connection Failed", isPasswordVisible: currentVisibility));
+        emit(AuthError("Registration failed. Try again.", isPasswordVisible: state.isPasswordVisible));
       }
     });
   }

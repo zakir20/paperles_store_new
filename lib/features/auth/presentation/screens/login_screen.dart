@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:paperless_store_upd/injection/injection_container.dart'; 
-import 'package:paperless_store_upd/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:paperless_store_upd/features/auth/presentation/bloc/auth_event.dart';
-import 'package:paperless_store_upd/features/auth/presentation/bloc/auth_state.dart';
+import 'package:go_router/go_router.dart'; // Added GoRouter import
+import 'package:paperless_store_upd/injection/injection_container.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,9 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
-  
-  String _selectedLanguage = Get.locale?.languageCode == 'bn' ? 'bn_BD' : 'en_US';
+
   final Color greenColor = const Color(0xFF2EB14B);
+  final Color bgColor = const Color(0xFFF1F8F1);
+  final Color lightGreenButton = const Color(0xFFE8F5E9);
+
+  String _selectedLanguage = Get.locale?.languageCode == 'bn' ? 'bn_BD' : 'en_US';
 
   @override
   void dispose() {
@@ -31,199 +35,204 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  OutlineInputBorder _buildBorder({Color? color, double width = 1.0}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: color ?? Colors.grey[300]!, width: width),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthBloc>(
       create: (context) => sl<AuthBloc>(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Language Selector
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: _buildLanguageDropdown(),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Title
-                Text(
-                  'login'.tr,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildLanguageDropdown(),
                   ),
-                ),
+                  const SizedBox(height: 50),
 
-                const SizedBox(height: 40),
-
-                // Email Field
-                TextFormField(
-                  controller: _emailController,
-                  focusNode: _emailFocusNode,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'email'.tr,
-                    hintText: 'enter_email'.tr,
-                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.black87, size: 22),
-                    labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    floatingLabelStyle: TextStyle(color: greenColor, fontWeight: FontWeight.w600),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    enabledBorder: OutlineInputBorder(
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: greenColor, width: 1.5),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                  ),
-                ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.send, size: 70, color: Color(0xFF2EB14B)),
+                        const SizedBox(height: 10),
+                        Text(
+                          'paperless_store'.tr, 
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 30),
 
-                const SizedBox(height: 25),
+                        // Email Field
+                        TextFormField(
+                          controller: _emailController,
+                          focusNode: _emailFocusNode,
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          decoration: InputDecoration(
+                            labelText: 'email'.tr,
+                            hintText: 'enter_email'.tr,
+                            prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                            labelStyle: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            floatingLabelStyle: TextStyle(color: greenColor),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                            border: _buildBorder(),
+                            enabledBorder: _buildBorder(),
+                            focusedBorder: _buildBorder(color: greenColor, width: 1.5),
+                          ),
+                        ),
 
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Password Field
-                    Expanded(
-                      child: BlocBuilder<AuthBloc, AuthState>(
-                        builder: (context, state) {
-                          return TextFormField(
-                            controller: _passwordController,
-                            focusNode: _passwordFocusNode,
-                            obscureText: !state.isPasswordVisible,
-                            decoration: InputDecoration(
-                              labelText: 'password'.tr,
-                              hintText: 'enter_password'.tr,
-                              prefixIcon: const Icon(Icons.lock_outline, color: Colors.black87, size: 22),
-                              labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-                              floatingLabelStyle: TextStyle(color: greenColor, fontWeight: FontWeight.w600),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
+                        const SizedBox(height: 15),
+
+                        // Password Row
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: BlocBuilder<AuthBloc, AuthState>(
+                                builder: (context, state) {
+                                  return TextFormField(
+                                    controller: _passwordController,
+                                    focusNode: _passwordFocusNode,
+                                    obscureText: !state.isPasswordVisible,
+                                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    decoration: InputDecoration(
+                                      labelText: 'password'.tr,
+                                      hintText: 'enter_password'.tr,
+                                      prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                                      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                      floatingLabelStyle: TextStyle(color: greenColor),
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                      border: _buildBorder(),
+                                      enabledBorder: _buildBorder(),
+                                      focusedBorder: _buildBorder(color: greenColor, width: 1.5),
+                                    ),
+                                  );
+                                },
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: greenColor, width: 1.5),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(width: 12), 
-
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        return SizedBox(
-                          height: 58, 
-                          child: OutlinedButton(
-                            onPressed: () {
-                              context.read<AuthBloc>().add(TogglePasswordVisibilityEvent());
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: greenColor),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                            const SizedBox(width: 8),
+                            BlocBuilder<AuthBloc, AuthState>(
+                              builder: (context, state) {
+                                return InkWell(
+                                  onTap: () => context.read<AuthBloc>().add(TogglePasswordVisibilityEvent()),
+                                  child: Container(
+                                    height: 45, 
+                                    width: 65,
+                                    decoration: BoxDecoration(
+                                      color: lightGreenButton,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      state.isPasswordVisible ? 'hide'.tr : 'show'.tr,
+                                      style: TextStyle(color: greenColor, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+                        
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () {},
                             child: Text(
-                              state.isPasswordVisible ? 'hide'.tr : 'show'.tr,
-                              style: TextStyle(
-                                color: greenColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
+                              'forgot_password'.tr, 
+                              style: TextStyle(color: greenColor, fontWeight: FontWeight.w500),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                        ),
 
-                const SizedBox(height: 12),
+                        const SizedBox(height: 10),
 
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Get.snackbar('Info', 'Feature coming soon'.tr),
-                    child: Text(
-                      'forgot_password'.tr,
-                      style: TextStyle(color: greenColor, fontWeight: FontWeight.w600),
+                        BlocConsumer<AuthBloc, AuthState>(
+                          listener: (context, state) {
+                            if (state is AuthSuccess) {
+                              context.go('/dashboard'); 
+                            }
+                            if (state is AuthError) {
+                               Get.snackbar('error'.tr, state.message, snackPosition: SnackPosition.BOTTOM);
+                            }
+                          },
+                          builder: (context, state) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: state is AuthLoading ? null : () {
+                                  if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                                    Get.snackbar('error'.tr, 'Please fill all fields', snackPosition: SnackPosition.BOTTOM);
+                                    return;
+                                  }
+                                  context.read<AuthBloc>().add(LoginEvent(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                  ));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: greenColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  elevation: 0,
+                                ),
+                                child: state is AuthLoading 
+                                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : Text(
+                                      'sign_in'.tr, 
+                                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+                        
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("no_account".tr, style: const TextStyle(color: Colors.black54)),
+                            TextButton(
+                              onPressed: () {
+                                context.push('/register'); 
+                              },
+                              child: Text(
+                                'register'.tr,
+                                style: TextStyle(color: greenColor, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Login Button
-                BlocConsumer<AuthBloc, AuthState>(
-                  listener: (context, state) {
-                    if (state is AuthSuccess) Get.offAllNamed('/dashboard');
-                    if (state is AuthError) {
-                      Get.snackbar('Error'.tr, state.message, snackPosition: SnackPosition.BOTTOM);
-                    }
-                  },
-                  builder: (context, state) {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: state is AuthLoading
-                            ? null
-                            : () {
-                                context.read<AuthBloc>().add(LoginEvent(
-                                      email: _emailController.text.trim(),
-                                      password: _passwordController.text,
-                                    ));
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: greenColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                        ),
-                        child: state is AuthLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                'login'.tr,
-                                style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 30),
-
-                // Register Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('no_account'.tr, style: TextStyle(color: Colors.grey[600])),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'register'.tr,
-                        style: TextStyle(color: greenColor, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -232,27 +241,58 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLanguageDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: greenColor),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedLanguage,
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() => _selectedLanguage = newValue);
-              Get.updateLocale(newValue == 'bn_BD' ? const Locale('bn', 'BD') : const Locale('en', 'US'));
-            }
-          },
-          items: const [
-            DropdownMenuItem(value: 'en_US', child: Text("🇺🇸 EN")),
-            DropdownMenuItem(value: 'bn_BD', child: Text("🇧🇩 BN")),
+    return PopupMenuButton<String>(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_selectedLanguage == 'en_US' ? "🇺🇸" : "🇧🇩", style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 8),
+            Text(
+              _selectedLanguage == 'en_US' ? "EN" : "BN",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
           ],
         ),
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      offset: const Offset(0, 50),
+      elevation: 4,
+      onSelected: (String newValue) {
+        setState(() => _selectedLanguage = newValue);
+        Get.updateLocale(newValue == 'bn_BD' ? const Locale('bn', 'BD') : const Locale('en', 'US'));
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'en_US',
+          child: Row(
+            children: [
+              const Text("🇺🇸", style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 12),
+              Expanded(child: Text("English (EN)", style: TextStyle(color: Colors.blueGrey[900], fontWeight: FontWeight.w600))),
+              if (_selectedLanguage == 'en_US') Icon(Icons.check, color: greenColor, size: 20),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'bn_BD',
+          child: Row(
+            children: [
+              const Text("🇧🇩", style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 12),
+              Expanded(child: Text("বাংলা (BN)", style: TextStyle(color: Colors.blueGrey[900], fontWeight: FontWeight.w600))),
+              if (_selectedLanguage == 'bn_BD') Icon(Icons.check, color: greenColor, size: 20),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

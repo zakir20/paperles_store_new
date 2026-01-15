@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart'; // 1. Added GoRouter import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,13 +18,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToLogin() {
     Future.delayed(const Duration(seconds: 2), () {
-      Get.offAllNamed('/login');
+      if (mounted) {
+        context.go('/login'); 
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -43,14 +47,15 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'app_title'.tr,
+              'app_title'.tr, 
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
+                fontFamily: 'Kalpurush', 
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             const CircularProgressIndicator(
               color: Color(0xFF2EB14B),
             ),

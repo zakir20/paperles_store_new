@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Added for image_picker support -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library to upload your profile picture and trade license documents.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera to take photos for your profile and business documents.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to the microphone if you record a video of your store documents.</string>
 </dict>
 </plist>
