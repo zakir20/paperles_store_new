@@ -1,186 +1,43 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gap/gap.dart'; 
+import 'package:easy_localization/easy_localization.dart'; 
 import 'package:paperless_store_upd/injection/injection_container.dart';
+import 'package:paperless_store_upd/core/bloc/language_cubit.dart';
+import 'package:paperless_store_upd/core/theme/app_colors.dart'; 
 import '../bloc/auth_cubit.dart'; 
 import '../bloc/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-=======
-import '../../../../core/services/api_service.dart';
-import '../widgets/language_selector.dart';
-import '../widgets/email_field.dart';
-import '../widgets/password_field.dart';
-import '../widgets/forgot_password.dart';
-import '../widgets/login_button.dart';
-import '../widgets/register_link.dart';
-import '../../utils/login_utils.dart';
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
->>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-<<<<<<< HEAD
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
-  final Color greenColor = const Color(0xFF2EB14B);
-  final Color bgColor = const Color(0xFFF1F8F1);
-  final Color lightGreenButton = const Color(0xFFE8F5E9);
-
-  String _selectedLanguage = Get.locale?.languageCode == 'bn' ? 'bn_BD' : 'en_US';
-
   @override
   void dispose() {
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
-=======
-  bool _isPasswordVisible = false;
-  bool _isLoading = false;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  String _selectedLanguage = 'English (EN)';
-  String _selectedFlag = '🇺🇸';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  LanguageSelector(
-                    selectedLanguage: _selectedLanguage,
-                    selectedFlag: _selectedFlag,
-                    onLanguageChanged: (language) => setState(() => _selectedLanguage = language),
-                    onFlagChanged: (flag) => setState(() => _selectedFlag = flag),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 60),
-              _buildAppTitle(),
-              const SizedBox(height: 60),
-              EmailField(controller: _emailController, selectedLanguage: _selectedLanguage),
-              const SizedBox(height: 20),
-              PasswordField(
-                controller: _passwordController,
-                selectedLanguage: _selectedLanguage,
-                isPasswordVisible: _isPasswordVisible,
-                onVisibilityChanged: (visible) => setState(() => _isPasswordVisible = visible),
-              ),
-              const SizedBox(height: 16),
-              ForgotPassword(
-                selectedLanguage: _selectedLanguage,
-                onPressed: _showForgotPasswordMessage,
-              ),
-              const SizedBox(height: 24),
-              LoginButton(
-                selectedLanguage: _selectedLanguage,
-                isLoading: _isLoading,
-                onPressed: _loginUser,
-              ),
-              const SizedBox(height: 24),
-              RegisterLink(
-                selectedLanguage: _selectedLanguage,
-                onPressed: () => Navigator.pushNamed(context, '/register'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppTitle() {
-    return Text(
-      _selectedLanguage == 'বাংলা' ? 'পেপারলেস স্টোর' : 'Paperless Store',
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: const Color(0xFF101828),
-        fontFamily: _selectedLanguage == 'বাংলা' ? 'Kalpurush' : null,
-      ),
-    );
-  }
-
-  Future<void> _loginUser() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      LoginUtils.showSnackBar(
-        context,
-        _selectedLanguage == 'বাংলা' ? 'ইমেইল এবং পাসওয়ার্ড লিখুন' : 'Please enter email and password',
-        true,
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final result = await ApiService.loginUser(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
-      setState(() => _isLoading = false);
-
-      if (result['success'] == true) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        LoginUtils.showSnackBar(
-          context,
-          result['message'] ?? (_selectedLanguage == 'বাংলা' ? 'লগইন ব্যর্থ হয়েছে' : 'Login failed'),
-          true,
-        );
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      LoginUtils.showSnackBar(
-        context,
-        _selectedLanguage == 'বাংলা' ? 'ত্রুটি হয়েছে: $e' : 'Error occurred: $e',
-        true,
-      );
-    }
-  }
-
-  void _showForgotPasswordMessage() {
-    LoginUtils.showSnackBar(
-      context,
-      _selectedLanguage == 'বাংলা' 
-        ? 'পাসওয়ার্ড রিসেট বৈশিষ্ট্য শীঘ্রই আসছে' 
-        : 'Password reset feature coming soon',
-      false,
-    );
-  }
-
-  @override
-  void dispose() {
->>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-<<<<<<< HEAD
 
+  // Native Snackbar for stability
   void _showMsg(String message, {bool isError = true}) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
+        backgroundColor: isError ? Colors.red : AppColors.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -189,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   OutlineInputBorder _buildBorder({Color? color, double width = 1.0}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: color ?? Colors.grey[300]!, width: width),
+      borderSide: BorderSide(color: color ?? AppColors.greyBorder, width: width),
     );
   }
 
@@ -198,29 +55,33 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocProvider<AuthCubit>(
       create: (context) => sl<AuthCubit>(),
       child: Scaffold(
-        backgroundColor: bgColor,
+        backgroundColor: AppColors.scaffoldBg,
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Column(
                 children: [
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _buildLanguageDropdown(),
+                  const Gap(10), 
+                  BlocBuilder<LanguageCubit, LanguageState>(
+                    builder: (context, langState) {
+                      return Align(
+                        alignment: Alignment.centerRight,
+                        child: _buildLanguageDropdown(langState),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 50),
+                  const Gap(50), 
 
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.cardWhite,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: AppColors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         )
@@ -228,75 +89,77 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.send, size: 70, color: Color(0xFF2EB14B)),
-                        const SizedBox(height: 10),
+                        const Icon(Icons.send, size: 70, color: AppColors.primary),
+                        const Gap(10), 
                         Text(
-                          'paperless_store'.tr, 
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          "paperless_store".tr(), 
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.black),
                         ),
-                        const SizedBox(height: 30),
+                        const Gap(30), 
 
+                        // Email Field
                         TextFormField(
                           controller: _emailController,
                           focusNode: _emailFocusNode,
-                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          style: const TextStyle(fontSize: 14, color: AppColors.black),
                           decoration: InputDecoration(
-                            labelText: 'email'.tr,
-                            hintText: 'enter_email'.tr,
+                            labelText: "email".tr(),
+                            hintText: "enter_email".tr(),
                             prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                            labelStyle: TextStyle(color: Colors.grey[600], fontSize: 13),
-                            floatingLabelStyle: TextStyle(color: greenColor),
+                            labelStyle: const TextStyle(color: AppColors.greyText, fontSize: 13),
+                            floatingLabelStyle: const TextStyle(color: AppColors.primary),
                             contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                             border: _buildBorder(),
                             enabledBorder: _buildBorder(),
-                            focusedBorder: _buildBorder(color: greenColor, width: 1.5),
+                            focusedBorder: _buildBorder(color: AppColors.primary, width: 1.5),
                           ),
                         ),
 
-                        const SizedBox(height: 15),
+                        const Gap(15), 
 
+                        // Password Field
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: BlocBuilder<AuthCubit, AuthState>(
-                                builder: (context, state) {
+                                builder: (context, authState) {
                                   return TextFormField(
                                     controller: _passwordController,
                                     focusNode: _passwordFocusNode,
-                                    obscureText: !state.isPasswordVisible,
-                                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    obscureText: !authState.isPasswordVisible,
+                                    style: const TextStyle(fontSize: 14, color: AppColors.black),
                                     decoration: InputDecoration(
-                                      labelText: 'password'.tr,
-                                      hintText: 'enter_password'.tr,
+                                      labelText: "password".tr(),
+                                      hintText: "enter_password".tr(),
                                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                                      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 13),
-                                      floatingLabelStyle: TextStyle(color: greenColor),
+                                      labelStyle: const TextStyle(color: AppColors.greyText, fontSize: 13),
+                                      floatingLabelStyle: const TextStyle(color: AppColors.primary),
                                       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                                       border: _buildBorder(),
                                       enabledBorder: _buildBorder(),
-                                      focusedBorder: _buildBorder(color: greenColor, width: 1.5),
+                                      focusedBorder: _buildBorder(color: AppColors.primary, width: 1.5),
                                     ),
                                   );
                                 },
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const Gap(8), 
                             BlocBuilder<AuthCubit, AuthState>(
-                              builder: (context, state) {
+                              builder: (context, authState) {
                                 return InkWell(
                                   onTap: () => context.read<AuthCubit>().togglePassword(),
                                   child: Container(
                                     height: 45, 
                                     width: 65,
                                     decoration: BoxDecoration(
-                                      color: lightGreenButton,
+                                      color: AppColors.lightGreenButton,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
-                                      state.isPasswordVisible ? 'hide'.tr : 'show'.tr,
-                                      style: TextStyle(color: greenColor, fontWeight: FontWeight.bold, fontSize: 13),
+                                      authState.isPasswordVisible ? "hide".tr() : "show".tr(),
+                                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
                                     ),
                                   ),
                                 );
@@ -305,39 +168,39 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
 
-                        const SizedBox(height: 10),
+                        const Gap(10), 
                         
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton(
                             onPressed: () {},
                             child: Text(
-                              'forgot_password'.tr, 
-                              style: TextStyle(color: greenColor, fontWeight: FontWeight.w500),
+                              "forgot_password".tr(), 
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const Gap(10), 
 
+                        // SIGN IN BUTTON
                         BlocConsumer<AuthCubit, AuthState>(
-                          listener: (context, state) {
-                            if (state is AuthSuccess) {
-                              _showMsg('Login Successful', isError: false);
+                          listener: (context, authState) {
+                            if (authState is AuthSuccess) {
                               context.go('/dashboard'); 
                             }
-                            if (state is AuthError) {
-                               _showMsg(state.message);
+                            if (authState is AuthError) {
+                               _showMsg(authState.message);
                             }
                           },
-                          builder: (context, state) {
+                          builder: (context, authState) {
                             return SizedBox(
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: state is AuthLoading ? null : () {
+                                onPressed: authState is AuthLoading ? null : () {
                                   if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-                                    _showMsg('Please fill all fields');
+                                    _showMsg("error".tr());
                                     return;
                                   }
                                   context.read<AuthCubit>().login(
@@ -346,14 +209,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: greenColor,
+                                  backgroundColor: AppColors.primary,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   elevation: 0,
                                 ),
-                                child: state is AuthLoading 
+                                child: authState is AuthLoading 
                                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                                   : Text(
-                                      'sign_in'.tr, 
+                                      "sign_in".tr(), 
                                       style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
                               ),
@@ -361,19 +224,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
 
-                        const SizedBox(height: 20),
+                        const Gap(20), 
                         
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("no_account".tr, style: const TextStyle(color: Colors.black54)),
+                            Text("no_account".tr(), style: const TextStyle(color: AppColors.greyText)),
                             TextButton(
-                              onPressed: () {
-                                context.push('/register'); 
-                              },
+                              onPressed: () => context.push('/register'),
                               child: Text(
-                                'register'.tr,
-                                style: TextStyle(color: greenColor, fontWeight: FontWeight.bold),
+                                "register".tr(),
+                                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -390,25 +251,27 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLanguageDropdown() {
+  Widget _buildLanguageDropdown(LanguageState langState) {
     return PopupMenuButton<String>(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardWhite.withOpacity(0.8),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: AppColors.greyBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_selectedLanguage == 'en_US' ? "🇺🇸" : "🇧🇩", style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
+            // Flag comes directly from Cubit State
+            Text(langState.flag, style: const TextStyle(fontSize: 18)),
+            const Gap(8),
             Text(
-              _selectedLanguage == 'en_US' ? "EN" : "BN",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              // Decide display text based on state localeCode
+              langState.localeCode == 'en_US' ? "EN" : "BN",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.black),
             ),
-            const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+            const Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.greyText),
           ],
         ),
       ),
@@ -416,8 +279,8 @@ class _LoginScreenState extends State<LoginScreen> {
       offset: const Offset(0, 50),
       elevation: 4,
       onSelected: (String newValue) {
-        setState(() => _selectedLanguage = newValue);
-        Get.updateLocale(newValue == 'bn_BD' ? const Locale('bn', 'BD') : const Locale('en', 'US'));
+        // 3. Trigger Cubit change
+        context.read<LanguageCubit>().changeLanguage(context, newValue);
       },
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -425,9 +288,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             children: [
               const Text("🇺🇸", style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 12),
-              Expanded(child: Text("English (EN)", style: TextStyle(color: Colors.blueGrey[900], fontWeight: FontWeight.w600))),
-              if (_selectedLanguage == 'en_US') Icon(Icons.check, color: greenColor, size: 20),
+              const Gap(12),
+              const Expanded(child: Text("English (EN)", style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600))),
+              if (langState.localeCode == 'en_US') const Icon(Icons.check, color: AppColors.primary, size: 20),
             ],
           ),
         ),
@@ -436,15 +299,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             children: [
               const Text("🇧🇩", style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 12),
-              Expanded(child: Text("বাংলা (BN)", style: TextStyle(color: Colors.blueGrey[900], fontWeight: FontWeight.w600))),
-              if (_selectedLanguage == 'bn_BD') Icon(Icons.check, color: greenColor, size: 20),
+              const Gap(12),
+              const Expanded(child: Text("বাংলা (BN)", style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600))),
+              if (langState.localeCode == 'bn_BD') const Icon(Icons.check, color: AppColors.primary, size: 20),
             ],
           ),
         ),
       ],
     );
   }
-=======
->>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 }

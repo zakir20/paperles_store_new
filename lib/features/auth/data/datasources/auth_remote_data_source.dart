@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:paperless_store_upd/core/network/dio_client.dart';
+import 'package:paperless_store_upd/core/network/network_executor.dart'; 
 
 class AuthRemoteDataSource {
-  final DioClient _dioClient;
+  final NetworkExecutor _executor; 
 
-  AuthRemoteDataSource(this._dioClient);
+  AuthRemoteDataSource(this._executor);
 
   Future<Response> registerUser(Map<String, dynamic> params) async {
     Map<String, dynamic> textData = {
@@ -36,7 +36,10 @@ class AuthRemoteDataSource {
       ));
     }
 
-    return await _dioClient.instance.post('auth/register.php', data: formData);
+    return await _executor.executePost(
+      endpoint: 'auth/register.php', 
+      data: formData,
+    );
   }
 
   Future<Response> loginUser(String email, String password) async {
@@ -46,8 +49,8 @@ class AuthRemoteDataSource {
       "lang": "en", 
     };
 
-    return await _dioClient.instance.post(
-      'auth/login.php', 
+    return await _executor.executePost(
+      endpoint: 'auth/login.php', 
       data: FormData.fromMap(loginData),
     );
   }
