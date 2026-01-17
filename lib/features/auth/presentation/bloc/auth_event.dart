@@ -18,6 +18,9 @@ class RegisterSubmitted extends AuthEvent {
   final String address;
   final String tradeLicense;
   final String password;
+  
+  final String? profileImagePath; 
+  final String? tradeLicensePath;
 
   RegisterSubmitted({
     required this.registrantName,
@@ -29,5 +32,7 @@ class RegisterSubmitted extends AuthEvent {
     required this.address,
     required this.tradeLicense,
     required this.password,
+    this.profileImagePath, 
+    this.tradeLicensePath, 
   });
 }

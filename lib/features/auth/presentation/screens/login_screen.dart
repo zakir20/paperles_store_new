@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart'; // Added GoRouter import
+import 'package:go_router/go_router.dart';
 import 'package:paperless_store_upd/injection/injection_container.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
+import '../bloc/auth_cubit.dart'; 
 import '../bloc/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,6 +34,17 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _showMsg(String message, {bool isError = true}) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   OutlineInputBorder _buildBorder({Color? color, double width = 1.0}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
@@ -44,8 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(
-      create: (context) => sl<AuthBloc>(),
+    return BlocProvider<AuthCubit>(
+      create: (context) => sl<AuthCubit>(),
       child: Scaffold(
         backgroundColor: bgColor,
         body: SafeArea(
@@ -85,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 30),
 
-                        // Email Field
                         TextFormField(
                           controller: _emailController,
                           focusNode: _emailFocusNode,
@@ -105,12 +114,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 15),
 
-                        // Password Row
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: BlocBuilder<AuthBloc, AuthState>(
+                              child: BlocBuilder<AuthCubit, AuthState>(
                                 builder: (context, state) {
                                   return TextFormField(
                                     controller: _passwordController,
@@ -133,10 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            BlocBuilder<AuthBloc, AuthState>(
+                            BlocBuilder<AuthCubit, AuthState>(
                               builder: (context, state) {
                                 return InkWell(
-                                  onTap: () => context.read<AuthBloc>().add(TogglePasswordVisibilityEvent()),
+                                  onTap: () => context.read<AuthCubit>().togglePassword(),
                                   child: Container(
                                     height: 45, 
                                     width: 65,
@@ -171,13 +179,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 10),
 
-                        BlocConsumer<AuthBloc, AuthState>(
+                        BlocConsumer<AuthCubit, AuthState>(
                           listener: (context, state) {
                             if (state is AuthSuccess) {
+                              _showMsg('Login Successful', isError: false);
                               context.go('/dashboard'); 
                             }
                             if (state is AuthError) {
-                               Get.snackbar('error'.tr, state.message, snackPosition: SnackPosition.BOTTOM);
+                               _showMsg(state.message);
                             }
                           },
                           builder: (context, state) {
@@ -187,13 +196,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed: state is AuthLoading ? null : () {
                                   if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-                                    Get.snackbar('error'.tr, 'Please fill all fields', snackPosition: SnackPosition.BOTTOM);
+                                    _showMsg('Please fill all fields');
                                     return;
                                   }
-                                  context.read<AuthBloc>().add(LoginEvent(
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ));
+                                  context.read<AuthCubit>().login(
+                                    _emailController.text.trim(),
+                                    _passwordController.text,
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: greenColor,
@@ -245,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey[200]!),
         ),

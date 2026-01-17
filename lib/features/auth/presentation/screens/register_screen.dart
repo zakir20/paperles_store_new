@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart'; 
 import 'package:paperless_store_upd/injection/injection_container.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
+import '../bloc/auth_cubit.dart'; 
 import '../bloc/auth_state.dart';
-import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,11 +32,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _isProprietorSame = false;
   String? _selectedShopType;
-  String? _selectedLocation;
   File? _profileImage;
   File? _tradeDocument;
 
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void dispose() {
+    _registrarNameController.dispose();
+    _shopNameController.dispose();
+    _proprietorNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _tradeLicenseController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _showSnackBar(String message, {bool isError = true}) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   Future<void> _pickImage(ImageSource source, bool isProfile) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
@@ -82,79 +105,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _validateAndSubmit(BuildContext context) {
     if (_profileImage == null) {
-      Get.snackbar('error'.tr, 'Please upload a profile image', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar('Please upload a profile image');
       return;
     }
     if (_registrarNameController.text.isEmpty) {
-      Get.snackbar('error'.tr, 'registrant_name'.tr + " is required", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    if (_shopNameController.text.isEmpty) {
-      Get.snackbar('error'.tr, 'shop_name'.tr + " is required", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar('registrant_name'.tr + " is required");
       return;
     }
     if (_phoneController.text.length < 11) {
-      Get.snackbar('error'.tr, 'valid_phone'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar('valid_phone'.tr);
       return;
     }
-    if (!GetUtils.isEmail(_emailController.text)) {
-      Get.snackbar('error'.tr, 'valid_email'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    if (_selectedShopType == null) {
-      Get.snackbar('error'.tr, 'select_shop_type'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    if (_selectedLocation == null) {
-      Get.snackbar('error'.tr, 'select_location'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    if (_passwordController.text.length < 6) {
-      Get.snackbar('error'.tr, 'Password must be at least 6 characters', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+    if (_passwordController.text.isEmpty) {
+      _showSnackBar('Password is required');
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
-      Get.snackbar('error'.tr, 'Passwords do not match', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar('Passwords do not match');
       return;
     }
 
-    context.read<AuthBloc>().add(RegisterSubmitted(
-      registrantName: _registrarNameController.text,
-      shopName: _shopNameController.text,
-      proprietorName: _proprietorNameController.text,
-      phoneNumber: _phoneController.text,
-      email: _emailController.text,
-      shopType: _selectedShopType!,
-      address: _addressController.text,
-      tradeLicense: _tradeLicenseController.text,
-      password: _passwordController.text,
-    ));
+    final registrationData = {
+      "registrantName": _registrarNameController.text.trim(),
+      "shopName": _shopNameController.text.trim(),
+      "proprietorName": _proprietorNameController.text.trim(),
+      "phoneNumber": _phoneController.text.trim(),
+      "email": _emailController.text.trim(),
+      "shopType": _selectedShopType ?? "Retail",
+      "address": _addressController.text.trim(),
+      "tradeLicense": _tradeLicenseController.text.trim(),
+      "password": _passwordController.text,
+      "profileImagePath": _profileImage?.path, 
+      "tradeLicensePath": _tradeDocument?.path,
+    };
+
+    context.read<AuthCubit>().register(registrationData);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(
-      create: (context) => sl<AuthBloc>(),
+    return BlocProvider<AuthCubit>(
+      create: (context) => sl<AuthCubit>(),
       child: Scaffold(
         backgroundColor: bgColor,
-       appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () {
-                    context.pop(); 
-                  },
-                ),
-                title: Text(
-                  'user_registration'.tr, 
-                  style: const TextStyle(
-                    color: Colors.black, 
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Kalpurush', 
-                  ),
-                ),
-              ),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => context.pop(), 
+          ),
+          title: Text(
+            'user_registration'.tr, 
+            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontFamily: 'Kalpurush'),
+          ),
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -190,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
 
-              // 2. Registrant's Name
+              // 2. Name Field
               _buildInputCard('registrant_name'.tr, 'enter_registrant_name'.tr, _registrarNameController, onChanged: (val) {
                 if (_isProprietorSame) setState(() => _proprietorNameController.text = val);
               }),
@@ -198,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // 3. Shop Name
               _buildInputCard('shop_name'.tr, 'enter_shop_name'.tr, _shopNameController),
 
-              // 4. Proprietor Name (Logic Fixed)
+              // 4. Proprietor Logic
               _buildCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,10 +229,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
 
-              _buildInputCard('phone_number'.tr, 'enter_phone_number'.tr, _phoneController, helperText: 'valid_phone'.tr, helperIcon: Icons.shield_outlined),
-              _buildInputCard('email'.tr, 'enter_your_email'.tr, _emailController, helperText: 'valid_email'.tr, helperIcon: Icons.shield_outlined),
+              _buildInputCard('phone_number'.tr, 'enter_phone_number'.tr, _phoneController),
+              _buildInputCard('email'.tr, 'enter_your_email'.tr, _emailController),
 
-              // Shop Type
+              // Shop Type Dropdown
               _buildCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,102 +241,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       decoration: _inputDecoration('select_shop_type'.tr),
-                      items: ['Retail', 'Wholesale', 'Groceries'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                      items: ['Retail', 'Wholesale', 'Pharmacy'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                       onChanged: (val) => setState(() => _selectedShopType = val),
                     ),
                   ],
                 ),
               ),
 
-              _buildInputCard('full_store_address'.tr, 'address_hint'.tr, _addressController, maxLines: 3),
-
-              // Location
-              _buildCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('shop_location'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      decoration: _inputDecoration('select_location'.tr).copyWith(prefixIcon: const Icon(Icons.add_location_alt)),
-                      items: ['Dhaka', 'Chittagong', 'Sylhet'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                      onChanged: (val) => setState(() => _selectedLocation = val),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Trade License
-              _buildCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('trade_license'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text('optional'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildTextField('trade_hint'.tr, _tradeLicenseController),
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: () => _showImageSourceActionSheet(context, false),
-                      child: Row(
-                        children: [
-                          Icon(Icons.upload, color: greenColor, size: 20),
-                          const SizedBox(width: 8),
-                          Text(_tradeDocument == null ? 'upload_document'.tr : "Document Selected ✅", style: TextStyle(color: greenColor, fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
+              _buildInputCard('full_store_address'.tr, 'address_hint'.tr, _addressController, maxLines: 2),
 
               _buildPasswordCard('password'.tr, 'enter_your_password'.tr, _passwordController),
               _buildPasswordCard('re_type_password'.tr, 'retype_password_hint'.tr, _confirmPasswordController),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-              // Action Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 54,
-                      child: OutlinedButton(
-                        onPressed: () => Get.back(),
-                        style: OutlinedButton.styleFrom(side: BorderSide(color: Colors.grey[300]!), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: Text('cancel'.tr, style: TextStyle(color: greenColor, fontWeight: FontWeight.bold)),
+              // SUBMIT BUTTON SECTION
+              BlocConsumer<AuthCubit, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthSuccess) {
+                    _showSnackBar('Registration Successful! Please Login.', isError: false);
+                    context.go('/login'); 
+                  }
+                  if (state is AuthError) {
+                    _showSnackBar(state.message);
+                  }
+                },
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => context.pop(),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 54)),
+                          child: Text('cancel'.tr, style: TextStyle(color: greenColor, fontWeight: FontWeight.bold)),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: BlocConsumer<AuthBloc, AuthState>(
-                      listener: (context, state) {
-                        if (state is AuthSuccess) Get.offAllNamed('/dashboard');
-                        if (state is AuthError) Get.snackbar('error'.tr, state.message);
-                      },
-                      builder: (context, state) {
-                        return SizedBox(
-                          height: 54,
-                          child: ElevatedButton(
-                            onPressed: state is AuthLoading ? null : () => _validateAndSubmit(context),
-                            style: ElevatedButton.styleFrom(backgroundColor: greenColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                            child: state is AuthLoading 
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: state is AuthLoading ? null : () => _validateAndSubmit(context),
+                          style: ElevatedButton.styleFrom(backgroundColor: greenColor, minimumSize: const Size(0, 54)),
+                          child: state is AuthLoading 
                               ? const CircularProgressIndicator(color: Colors.white)
                               : Text('register'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 50),
             ],
           ),
         ),
@@ -339,7 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // --- Helpers ---
+  // --- HELPERS ---
   Widget _buildCard({required Widget child}) {
     return Container(
       width: double.infinity, margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(16),
@@ -348,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildInputCard(String label, String hint, TextEditingController controller, {String? helperText, IconData? helperIcon, int maxLines = 1, Function(String)? onChanged}) {
+  Widget _buildInputCard(String label, String hint, TextEditingController controller, {int maxLines = 1, Function(String)? onChanged}) {
     return _buildCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,10 +315,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           _buildTextField(hint, controller, maxLines: maxLines, onChanged: onChanged),
-          if (helperText != null) ...[
-            const SizedBox(height: 8),
-            Row(children: [if (helperIcon != null) Icon(helperIcon, size: 14), const SizedBox(width: 4), Text(helperText, style: const TextStyle(fontSize: 12))])
-          ]
         ],
       ),
     );
@@ -372,15 +327,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          BlocBuilder<AuthBloc, AuthState>(
+          BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
               return TextField(
                 controller: controller, obscureText: !state.isPasswordVisible,
                 style: const TextStyle(color: Colors.black),
                 decoration: _inputDecoration(hint).copyWith(
                   suffixIcon: IconButton(
-                    icon: Icon(state.isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () => context.read<AuthBloc>().add(TogglePasswordVisibilityEvent()),
+                    icon: Icon(state.isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.black),
+                    onPressed: () => context.read<AuthCubit>().togglePassword(), // CALL CUBIT
                   ),
                 ),
               );
@@ -402,7 +357,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      // Hint is pure black
       hintStyle: const TextStyle(color: Colors.black, fontSize: 14),
       filled: true, fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

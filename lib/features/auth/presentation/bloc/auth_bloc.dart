@@ -1,44 +1,53 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/datasources/auth_remote_data_source.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(AuthInitial(isPasswordVisible: false)) {
-    
-    // 1. Handle Show/Hide Password Toggle
-    on<TogglePasswordVisibilityEvent>((event, emit) {
-      emit(AuthInitial(isPasswordVisible: !state.isPasswordVisible));
-    });
+  final AuthRemoteDataSource remoteDataSource;
 
-    // 2. Handle Login Logic
-    on<LoginEvent>((event, emit) async {
-      emit(AuthLoading(isPasswordVisible: state.isPasswordVisible));
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API
-      
-      if (event.email == "zakir@mail.com" && event.password == "123456") {
-        emit(AuthSuccess(isPasswordVisible: state.isPasswordVisible));
+  AuthBloc(this.remoteDataSource) : super(AuthInitial()) {
+    
+    on<TogglePasswordVisibilityEvent>((event, emit) {
+      if (state is AuthInitial) {
+        emit(AuthInitial(isPasswordVisible: !state.isPasswordVisible));
+      } else if (state is AuthError) {
+        emit(AuthError((state as AuthError).message, isPasswordVisible: !state.isPasswordVisible));
       } else {
-        emit(AuthError("Invalid credentials", isPasswordVisible: state.isPasswordVisible));
+        emit(AuthInitial(isPasswordVisible: !state.isPasswordVisible));
       }
     });
 
-    // 3. Handle Registration Logic (The "Done" process)
+          on<LoginEvent>((event, emit) async {
+            emit(AuthLoading(isPasswordVisible: state.isPasswordVisible));
+
+            try {
+              final response = await remoteDataSource.loginUser(event.email, event.password);
+
+              if (response.data['status'] == 'success') {
+                emit(AuthSuccess());
+              } else {
+                emit(AuthError(response.data['message']));
+              }
+            } catch (e) {
+              emit(AuthError("Connection error. Check your local server IP."));
+            }
+          });
+
     on<RegisterSubmitted>((event, emit) async {
       emit(AuthLoading(isPasswordVisible: state.isPasswordVisible));
 
       try {
-        // --- This is where the magic happens ---
-        // In the future, you will call: await repository.register(event.registrantName, ...)
-        
-        print("Registering: ${event.shopName} for ${event.registrantName}");
-        
-        // Simulating network delay
-        await Future.delayed(const Duration(seconds: 3));
+        final response = await remoteDataSource.registerUser(event);
 
-        // On Success
-        emit(AuthSuccess(isPasswordVisible: state.isPasswordVisible));
+        if (response.data['status'] == 'success') {
+          emit(AuthSuccess());
+        } else {
+          emit(AuthError(response.data['message']));
+        }
       } catch (e) {
-        emit(AuthError("Registration failed. Try again.", isPasswordVisible: state.isPasswordVisible));
+        print("Network Error: $e");
+        emit(AuthError("Connection failed. Check if your PC and Phone are on same Wi-Fi."));
       }
     });
   }
