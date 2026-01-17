@@ -27,7 +27,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
+<<<<<<< HEAD
   if (!window.Create(L"paperless_store_upd", origin, size)) {
+=======
+  if (!window.Create(L"paperless_store_new", origin, size)) {
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

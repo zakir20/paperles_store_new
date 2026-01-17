@@ -90,12 +90,21 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
+<<<<<<< HEAD
             VALUE "FileDescription", "paperless_store_upd" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "paperless_store_upd" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "paperless_store_upd.exe" "\0"
             VALUE "ProductName", "paperless_store_upd" "\0"
+=======
+            VALUE "FileDescription", "paperless_store_new" "\0"
+            VALUE "FileVersion", VERSION_AS_STRING "\0"
+            VALUE "InternalName", "paperless_store_new" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "OriginalFilename", "paperless_store_new.exe" "\0"
+            VALUE "ProductName", "paperless_store_new" "\0"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
+<<<<<<< HEAD
         android:label="paperless_store_upd"
+=======
+        android:label="paperless_store_new"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

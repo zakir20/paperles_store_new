@@ -15,7 +15,11 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
                BuildableName = "paperless_store_upd.app"
+=======
+               BuildableName = "paperless_store_new.app"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
                BlueprintName = "Runner"
                ReferencedContainer = "container:Runner.xcodeproj">
             </BuildableReference>
@@ -31,7 +35,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "paperless_store_upd.app"
+=======
+            BuildableName = "paperless_store_new.app"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>
@@ -66,7 +74,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "paperless_store_upd.app"
+=======
+            BuildableName = "paperless_store_new.app"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>
@@ -83,7 +95,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "paperless_store_upd.app"
+=======
+            BuildableName = "paperless_store_new.app"
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>

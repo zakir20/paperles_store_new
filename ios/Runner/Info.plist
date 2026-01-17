@@ -5,7 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
+<<<<<<< HEAD
 	<string>Paperless Store Upd</string>
+=======
+	<string>Paperless Store New</string>
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +17,11 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
+<<<<<<< HEAD
 	<string>paperless_store_upd</string>
+=======
+	<string>paperless_store_new</string>
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,6 +53,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+<<<<<<< HEAD
 
 	<!-- Added for image_picker support -->
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -55,3 +64,7 @@
 	<string>This app requires access to the microphone if you record a video of your store documents.</string>
 </dict>
 </plist>
+=======
+</dict>
+</plist>
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
