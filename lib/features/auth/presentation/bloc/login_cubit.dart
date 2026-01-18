@@ -13,14 +13,14 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       final response = await authRepository.login(email, password);
       
-      if (response.data['status'] == 'success') {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_name', response.data['data']['name'] ?? 'User');
-        await prefs.setBool('is_logged_in', true);
-        emit(const LoginSuccess());
-      } else {
-        emit(LoginError(response.data['message'], isPasswordVisible: state.isPasswordVisible));
-      }
+          if (response.data['status'] == 'success') {
+            final String userName = response.data['data']['name'] ?? 'User';
+            await authRepository.saveSession(userName); 
+
+            emit(const LoginSuccess());
+            } else {
+            emit(LoginError(response.data['message'], isPasswordVisible: state.isPasswordVisible));
+            }
     } catch (e) {
       emit(LoginError("Connection Error", isPasswordVisible: state.isPasswordVisible));
     }

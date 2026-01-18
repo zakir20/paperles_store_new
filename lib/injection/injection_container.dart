@@ -26,8 +26,7 @@ Future<void> init() async {
 
   //  Global Cubits
   sl.registerLazySingleton(() => LanguageCubit());
-  sl.registerLazySingleton(() => GlobalAuthCubit());
-
+  sl.registerLazySingleton(() => GlobalAuthCubit(sl()));
   // Feature Cubits
   sl.registerFactory(() => LoginCubit(sl())); 
   sl.registerFactory(() => RegisterCubit(sl())); 

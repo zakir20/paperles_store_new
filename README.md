@@ -1,20 +1,28 @@
-<<<<<<< HEAD
-# paperless_store_upd
-=======
-# paperless_store_new
->>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
+# Paperless Store (Updated)
 
-A new Flutter project.
+A professional store management application built with **Flutter** using **Clean Architecture** and **Cubit** state management.
 
-## Getting Started
+## 🚀 Project Overview
+This project is designed to handle store operations like user registration, authentication, and inventory management, connected to a local PHP/MySQL backend.
 
-This project is a starting point for a Flutter application.
+## 🛠 Tech Stack
+- **Frontend:** Flutter (Dart)
+- **State Management:** Bloc/Cubit
+- **Navigation:** GoRouter
+- **Localization:** Easy Localization (JSON based)
+- **Networking:** Dio with Network Executor pattern
+- **Dependency Injection:** GetIt (Service Locator)
+- **Backend:** PHP & MySQL
 
-A few resources to get you started if this is your first Flutter project:
+## 📁 Key Features Implemented
+- **Full Auth Module:** Split Login and Registration logic for better modularity.
+- **Repository Pattern:** Separated domain and data layers for a scalable architecture.
+- **Global Auth:** Persistent session management (Auto-login) using SharedPreferences.
+- **Dynamic Localization:** Support for English and Bangla.
+- **Custom UI:** Mobile-first design using global theme colors and responsive layouts.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ⚙️ Development Setup
+1. Ensure a local server (XAMPP/WAMP) is running.
+2. Configure the `baseUrl` in `dio_client.dart` with your machine's local IP address.
+3. Run `flutter pub get` to install dependencies.
+4. Run `flutter run`.
