@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // Add this
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gap/gap.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
-import 'package:paperless_store_upd/core/utils/session_manager.dart'; 
+// Import the Global Auth files
+import 'package:paperless_store_upd/core/bloc/global_auth_cubit.dart';
+import 'package:paperless_store_upd/core/bloc/global_auth_state.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,14 +23,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _startAppFlow() async {
+    await context.read<GlobalAuthCubit>().checkAuthStatus();
     await Future.delayed(const Duration(seconds: 2));
 
-    bool loggedIn = await SessionManager.isLoggedIn();
-
     if (mounted) {
-      if (loggedIn) {
+      final authState = context.read<GlobalAuthCubit>().state;
+
+      if (authState is Authenticated) {
+        // User logged in before -> Go to Dashboard
         context.go('/dashboard');
       } else {
+        // New user or logged out -> Go to Login
         context.go('/login');
       }
     }
