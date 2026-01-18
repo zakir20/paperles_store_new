@@ -8,6 +8,7 @@ import 'package:paperless_store_upd/core/bloc/language_cubit.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart'; 
 import '../bloc/auth_cubit.dart'; 
 import '../bloc/auth_state.dart';
+import 'package:paperless_store_upd/core/bloc/language_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

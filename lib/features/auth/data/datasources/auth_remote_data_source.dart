@@ -22,14 +22,14 @@ class AuthRemoteDataSource {
 
     FormData formData = FormData.fromMap(textData);
 
-    if (params['profileImagePath'] != null && params['profileImagePath'].isNotEmpty) {
+    if (params['profileImagePath'] != null && params['profileImagePath'].toString().isNotEmpty) {
       formData.files.add(MapEntry(
         "file_owner_pic", 
         await MultipartFile.fromFile(params['profileImagePath']),
       ));
     }
     
-    if (params['tradeLicensePath'] != null && params['tradeLicensePath'].isNotEmpty) {
+    if (params['tradeLicensePath'] != null && params['tradeLicensePath'].toString().isNotEmpty) {
       formData.files.add(MapEntry(
         "file_trade_license", 
         await MultipartFile.fromFile(params['tradeLicensePath']),

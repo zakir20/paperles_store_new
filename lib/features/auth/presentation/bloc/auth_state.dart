@@ -1,21 +1,28 @@
-abstract class AuthState {
+import 'package:equatable/equatable.dart';
+
+abstract class AuthState extends Equatable {
   final bool isPasswordVisible;
-  AuthState({this.isPasswordVisible = false});
+  const AuthState({this.isPasswordVisible = false}); 
+  @override
+  List<Object?> get props => [isPasswordVisible];
 }
 
 class AuthInitial extends AuthState {
-  AuthInitial({super.isPasswordVisible});
+  const AuthInitial({super.isPasswordVisible}); 
 }
 
 class AuthLoading extends AuthState {
-  AuthLoading({super.isPasswordVisible});
+  const AuthLoading({super.isPasswordVisible}); 
 }
 
 class AuthSuccess extends AuthState {
-  AuthSuccess({super.isPasswordVisible});
+  const AuthSuccess({super.isPasswordVisible}); 
 }
 
 class AuthError extends AuthState {
   final String message;
-  AuthError(this.message, {super.isPasswordVisible});
+  const AuthError(this.message, {super.isPasswordVisible}); 
+
+  @override
+  List<Object?> get props => [message, isPasswordVisible];
 }

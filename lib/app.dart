@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:paperless_store_upd/core/bloc/language_cubit.dart';
 import 'package:paperless_store_upd/injection/injection_container.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart'; 
-import 'navigation/app_router.dart'; 
+import 'package:paperless_store_upd/navigation/app_router.dart'; 
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Paperless Store',
       
-        localizationsDelegates: context.localizationsDelegates,
+       
+        localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           primaryColor: AppColors.primary, 
+          scaffoldBackgroundColor: AppColors.scaffoldBg,
           fontFamily: 'Kalpurush', 
         ),
       ),
