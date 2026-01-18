@@ -1,9 +1,7 @@
-name: paperless_store
-description: A new Flutter project.
-
-publish_to: 'none'
-
+name: paperless_store_upd
+description:  Paperless Store 
 version: 1.0.0+1
+publish_to: 'none'
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -11,19 +9,46 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  http: ^1.1.0
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.2 
+  easy_localization: ^3.0.7
+  
+  cupertino_icons: ^1.0.6
+  gap: ^3.0.1
+  
+  # State Management
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  
+  # Navigation & Dependency Injection
+  go_router: ^14.0.0
+  get_it: ^7.7.0
+  
+  # Networking & Storage
+  dio: ^5.4.1
   shared_preferences: ^2.2.2
-  path_provider: ^2.1.0
-  image_picker: ^1.0.4
+  
+  # UI & Assets
+  google_fonts: ^6.2.1
+  image_picker: ^1.0.7
+  path_provider: ^2.1.0 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true
   
+  generate: true 
+
   assets:
     - assets/images/
+    - assets/translations/ 
+
+  fonts:
+    - family: Kalpurush 
+      fonts:
+        - asset: assets/fonts/kalpurush.ttf

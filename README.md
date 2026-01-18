@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+# paperless_store_upd
+=======
 # paperless_store_new
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 
 A new Flutter project.
 

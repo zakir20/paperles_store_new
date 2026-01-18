@@ -8,7 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+<<<<<<< HEAD
+import 'package:paperless_store_upd/main.dart';
+=======
 import 'package:paperless_store_new/main.dart';
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

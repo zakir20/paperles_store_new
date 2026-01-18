@@ -4,10 +4,17 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
+<<<<<<< HEAD
+set(BINARY_NAME "paperless_store_upd")
+# The unique GTK application identifier for this application. See:
+# https://wiki.gnome.org/HowDoI/ChooseApplicationID
+set(APPLICATION_ID "com.example.paperless_store_upd")
+=======
 set(BINARY_NAME "paperless_store_new")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
 set(APPLICATION_ID "com.example.paperless_store_new")
+>>>>>>> 80e79e0d57498f8285b6aee913ad20e8f7441117
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
