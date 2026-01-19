@@ -9,6 +9,7 @@ import 'package:paperless_store_upd/injection/injection_container.dart';
 import 'package:paperless_store_upd/core/bloc/language_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/language_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
+import 'package:paperless_store_upd/core/constants/route_names.dart';
 import '../bloc/register_cubit.dart';
 import '../bloc/register_state.dart';
 
@@ -110,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     if (_registrarNameController.text.isEmpty) {
-      _showMsg("registrant_name".tr() + " is required");
+      _showMsg("${"registrant_name".tr()} is required");
       return;
     }
     if (_phoneController.text.length < 11) {
@@ -136,227 +137,228 @@ class _RegisterScreenState extends State<RegisterScreen> {
       "tradeLicensePath": _tradeDocument?.path,
     };
 
-    // 2. CALL REGISTER CUBIT
     context.read<RegisterCubit>().register(registrationData);
   }
 
   @override
   Widget build(BuildContext context) {
-    // 3. PROVIDE REGISTER CUBIT
     return BlocProvider<RegisterCubit>(
       create: (context) => sl<RegisterCubit>(),
-      child: BlocBuilder<LanguageCubit, LanguageState>(
-        builder: (context, langState) {
-          return Scaffold(
-            backgroundColor: AppColors.scaffoldBg,
-            appBar: AppBar(
-              backgroundColor: AppColors.cardWhite,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.black),
-                onPressed: () => context.pop(),
-              ),
-              title: Text(
+      child: Scaffold(
+        backgroundColor: AppColors.scaffoldBg,
+        appBar: AppBar(
+          backgroundColor: AppColors.cardWhite,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.black),
+            onPressed: () => context.pop(),
+          ),
+          title: BlocBuilder<LanguageCubit, LanguageState>(
+            builder: (context, langState) {
+              return Text(
                 'user_registration'.tr(),
                 style: const TextStyle(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Kalpurush'),
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // 1. Profile Image Card
+              _buildCard(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.greyBorder),
+                        image: _profileImage != null
+                            ? DecorationImage(
+                                image: FileImage(_profileImage!),
+                                fit: BoxFit.cover)
+                            : null,
+                      ),
+                      child: _profileImage == null
+                          ? const Icon(Icons.person,
+                              size: 40, color: AppColors.black)
+                          : null,
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('profile_image'.tr(),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text('upload_photo'.tr(),
+                              style: const TextStyle(
+                                  color: AppColors.greyText, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          _showImageSourceActionSheet(context, true),
+                      child: Text('choose'.tr(),
+                          style: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
+                    )
+                  ],
+                ),
               ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // 1. Profile Image Card
-                  _buildCard(
-                    child: Row(
+
+              // 2. Name Field
+              _buildInputCard('registrant_name'.tr(), 'enter_registrant_name'.tr(),
+                  _registrarNameController, onChanged: (val) {
+                if (_isProprietorSame) {
+                  setState(() => _proprietorNameController.text = val);
+                }
+              }),
+
+              // 3. Shop Name
+              _buildInputCard(
+                  'shop_name'.tr(), 'enter_shop_name'.tr(), _shopNameController),
+
+              // 4. Proprietor Logic
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('proprietor_name'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.black)),
+                    const Gap(8),
+                    _buildTextField(
+                        'enter_proprietor_name'.tr(), _proprietorNameController,
+                        enabled: !_isProprietorSame),
+                    Row(
                       children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.greyBorder),
-                            image: _profileImage != null
-                                ? DecorationImage(
-                                    image: FileImage(_profileImage!),
-                                    fit: BoxFit.cover)
-                                : null,
-                          ),
-                          child: _profileImage == null
-                              ? const Icon(Icons.person,
-                                  size: 40, color: AppColors.black)
-                              : null,
+                        Checkbox(
+                          value: _isProprietorSame,
+                          activeColor: AppColors.primary,
+                          onChanged: (val) {
+                            setState(() {
+                              _isProprietorSame = val!;
+                              if (_isProprietorSame) {
+                                _proprietorNameController.text =
+                                    _registrarNameController.text;
+                              }
+                            });
+                          },
                         ),
-                        const Gap(16),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('profile_image'.tr(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text('upload_photo'.tr(),
-                                  style: const TextStyle(
-                                      color: AppColors.greyText, fontSize: 13)),
-                            ],
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              _showImageSourceActionSheet(context, true),
-                          child: Text('choose'.tr(),
+                            child: Text('same_as_registrar'.tr(),
+                                style: const TextStyle(fontSize: 12, color: AppColors.black))),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+
+              _buildInputCard(
+                  'phone_number'.tr(), 'enter_phone_number'.tr(), _phoneController),
+              _buildInputCard(
+                  'email'.tr(), 'enter_your_email'.tr(), _emailController),
+
+              // Shop Type Dropdown
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('shop_type'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.black)),
+                    const Gap(8),
+                    DropdownButtonFormField<String>(
+                      decoration: _inputDecoration('select_shop_type'.tr()),
+                      dropdownColor: AppColors.cardWhite,
+                      items: ['Retail', 'Wholesale', 'Pharmacy']
+                          .map((e) =>
+                              DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(color: AppColors.black))))
+                          .toList(),
+                      onChanged: (val) =>
+                          setState(() => _selectedShopType = val),
+                    ),
+                  ],
+                ),
+              ),
+
+              _buildInputCard('full_store_address'.tr(), 'address_hint'.tr(),
+                  _addressController,
+                  maxLines: 2),
+
+              _buildPasswordCard('password'.tr(), 'enter_your_password'.tr(),
+                  _passwordController),
+              _buildPasswordCard('re_type_password'.tr(),
+                  'retype_password_hint'.tr(), _confirmPasswordController),
+
+              const Gap(25),
+
+              // SUBMIT BUTTON SECTION
+              BlocConsumer<RegisterCubit, RegisterState>(
+                listener: (context, state) {
+                  if (state is RegisterSuccess) {
+                    _showMsg('Registration Successful! Please Login.',
+                        isError: false);
+                    context.go(RouteNames.login);
+                  }
+                  if (state is RegisterError) {
+                    _showMsg(state.message);
+                  }
+                },
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => context.pop(),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 54),
+                              side: const BorderSide(color: AppColors.greyBorder)),
+                          child: Text('cancel'.tr(),
                               style: const TextStyle(
                                   color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16)),
-                        )
-                      ],
-                    ),
-                  ),
-
-                  // 2. Name Field
-                  _buildInputCard('registrant_name'.tr(), 'enter_registrant_name'.tr(),
-                      _registrarNameController, onChanged: (val) {
-                    if (_isProprietorSame) {
-                      setState(() => _proprietorNameController.text = val);
-                    }
-                  }),
-
-                  // 3. Shop Name
-                  _buildInputCard(
-                      'shop_name'.tr(), 'enter_shop_name'.tr(), _shopNameController),
-
-                  // 4. Proprietor Logic
-                  _buildCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('proprietor_name'.tr(),
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        const Gap(8),
-                        _buildTextField(
-                            'enter_proprietor_name'.tr(), _proprietorNameController,
-                            enabled: !_isProprietorSame),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isProprietorSame,
-                              activeColor: AppColors.primary,
-                              onChanged: (val) {
-                                setState(() {
-                                  _isProprietorSame = val!;
-                                  if (_isProprietorSame) {
-                                    _proprietorNameController.text =
-                                        _registrarNameController.text;
-                                  }
-                                });
-                              },
-                            ),
-                            Expanded(
-                                child: Text('same_as_registrar'.tr(),
-                                    style: const TextStyle(fontSize: 12))),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-
-                  _buildInputCard(
-                      'phone_number'.tr(), 'enter_phone_number'.tr(), _phoneController),
-                  _buildInputCard(
-                      'email'.tr(), 'enter_your_email'.tr(), _emailController),
-
-                  // Shop Type Dropdown
-                  _buildCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('shop_type'.tr(),
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        const Gap(8),
-                        DropdownButtonFormField<String>(
-                          decoration: _inputDecoration('select_shop_type'.tr()),
-                          items: ['Retail', 'Wholesale', 'Pharmacy']
-                              .map((e) =>
-                                  DropdownMenuItem(value: e, child: Text(e)))
-                              .toList(),
-                          onChanged: (val) =>
-                              setState(() => _selectedShopType = val),
+                                  fontWeight: FontWeight.bold)),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  _buildInputCard('full_store_address'.tr(), 'address_hint'.tr(),
-                      _addressController,
-                      maxLines: 2),
-
-                  _buildPasswordCard('password'.tr(), 'enter_your_password'.tr(),
-                      _passwordController),
-                  _buildPasswordCard('re_type_password'.tr(),
-                      'retype_password_hint'.tr(), _confirmPasswordController),
-
-                  const Gap(25),
-
-                  // 4. SUBMIT BUTTON SECTION WITH RegisterCubit
-                  BlocConsumer<RegisterCubit, RegisterState>(
-                    listener: (context, state) {
-                      if (state is RegisterSuccess) {
-                        _showMsg('Registration Successful! Please Login.',
-                            isError: false);
-                        context.go('/login');
-                      }
-                      if (state is RegisterError) {
-                        _showMsg(state.message);
-                      }
-                    },
-                    builder: (context, state) {
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => context.pop(),
-                              style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size(0, 54),
-                                  side: const BorderSide(color: AppColors.greyBorder)),
-                              child: Text('cancel'.tr(),
+                      ),
+                      const Gap(15),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: state is RegisterLoading
+                              ? null
+                              : () => _validateAndSubmit(context),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              minimumSize: const Size(0, 54),
+                              elevation: 0),
+                          child: state is RegisterLoading
+                              ? const SizedBox(
+                                  height: 20, width: 20,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2))
+                              : Text('register'.tr(),
                                   style: const TextStyle(
-                                      color: AppColors.primary,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          const Gap(15),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: state is RegisterLoading
-                                  ? null
-                                  : () => _validateAndSubmit(context),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  minimumSize: const Size(0, 54)),
-                              child: state is RegisterLoading
-                                  ? const SizedBox(
-                                      height: 20, width: 20,
-                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                  : Text('register'.tr(),
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const Gap(50),
-                ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-            ),
-          );
-        },
+              const Gap(50),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -372,7 +374,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05), blurRadius: 4)
+                // FIXED: Replaced withOpacity(0.05) with withAlpha(13)
+                color: AppColors.black.withAlpha(13), 
+                blurRadius: 4)
           ]),
       child: child,
     );
@@ -384,7 +388,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.black)),
           const Gap(8),
           _buildTextField(hint, controller,
               maxLines: maxLines, onChanged: onChanged),
@@ -399,15 +403,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.black)),
           const Gap(8),
-          // 5. USE REGISTER CUBIT FOR PASSWORD TOGGLE
           BlocBuilder<RegisterCubit, RegisterState>(
             builder: (context, state) {
               return TextField(
                 controller: controller,
                 obscureText: !state.isPasswordVisible,
-                style: const TextStyle(color: AppColors.black),
+                style: const TextStyle(color: AppColors.black, fontWeight: FontWeight.w500),
                 decoration: _inputDecoration(hint).copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -442,9 +445,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: AppColors.black, fontSize: 14),
+      hintStyle: const TextStyle(color: AppColors.greyText, fontSize: 14),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: AppColors.cardWhite,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

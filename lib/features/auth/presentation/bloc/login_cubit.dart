@@ -1,10 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../domain/repositories/auth_repository.dart'; 
+import '../../domain/repositories/auth_repository.dart';
 import 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  final AuthRepository authRepository; // Use Repository
+  final AuthRepository authRepository;
 
   LoginCubit(this.authRepository) : super(const LoginInitial());
 
@@ -13,14 +12,18 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       final response = await authRepository.login(email, password);
       
-          if (response.data['status'] == 'success') {
-            final String userName = response.data['data']['name'] ?? 'User';
-            await authRepository.saveSession(userName); 
+      // 1. Check with Status Code 
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        
+        // 2. Call Repository to handle SharedPreferences 
+        final String name = response.data['data']['name'] ?? 'User';
+        await authRepository.saveSession(name); 
 
-            emit(const LoginSuccess());
-            } else {
-            emit(LoginError(response.data['message'], isPasswordVisible: state.isPasswordVisible));
-            }
+        emit(const LoginSuccess());
+      } else {
+        final errorMessage = response.data['message'] ?? "Login Failed";
+        emit(LoginError(errorMessage, isPasswordVisible: state.isPasswordVisible));
+      }
     } catch (e) {
       emit(LoginError("Connection Error", isPasswordVisible: state.isPasswordVisible));
     }

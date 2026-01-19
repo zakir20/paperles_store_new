@@ -11,14 +11,15 @@ class GlobalAuthCubit extends Cubit<GlobalAuthState> {
     final bool isLoggedIn = await authRepository.checkAuthStatus();
 
     if (isLoggedIn) {
-      emit(Authenticated());
-    } else {
-      emit(Unauthenticated());
-    }
-  }
+        final name = await authRepository.getUserName(); 
+        emit(Authenticated(userName: name ?? "User"));
+        } else {
+          emit(const Unauthenticated());
+        }
+          }
 
-  void setAuthenticated() {
-    emit(Authenticated());
+  void setAuthenticated(String name) {
+    emit(Authenticated(userName: name));
   }
 
   Future<void> logout() async {

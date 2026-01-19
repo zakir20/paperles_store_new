@@ -9,4 +9,5 @@ abstract class AuthRepository {
   Future<bool> checkAuthStatus();
   Future<void> saveSession(String name);
   Future<void> clearSession();
+  Future<String?> getUserName();
 }

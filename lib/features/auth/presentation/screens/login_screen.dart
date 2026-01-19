@@ -3,13 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart'; 
 import 'package:easy_localization/easy_localization.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:paperless_store_upd/injection/injection_container.dart';
 import 'package:paperless_store_upd/core/bloc/language_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/language_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart'; 
+import 'package:paperless_store_upd/core/constants/route_names.dart'; 
+import 'package:paperless_store_upd/core/bloc/global_auth_cubit.dart';
 import '../bloc/login_cubit.dart'; 
 import '../bloc/login_state.dart';
-import 'package:paperless_store_upd/core/bloc/global_auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,7 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 2. Updated BlocProvider to use LoginCubit
     return BlocProvider<LoginCubit>(
       create: (context) => sl<LoginCubit>(),
       child: BlocBuilder<LanguageCubit, LanguageState>(
@@ -81,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.black.withOpacity(0.05),
+                              color: AppColors.black.withAlpha(13), 
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             )
@@ -101,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: _emailController,
                               focusNode: _emailFocusNode,
-                              style: const TextStyle(fontSize: 14, color: AppColors.black),
+                              style: const TextStyle(fontSize: 14, color: Colors.black),
                               decoration: InputDecoration(
                                 labelText: "email".tr(),
                                 hintText: "enter_email".tr(),
@@ -122,7 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  // 3. Updated Builder for LoginCubit
                                   child: BlocBuilder<LoginCubit, LoginState>(
                                     builder: (context, loginState) {
                                       return TextFormField(
@@ -149,7 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 BlocBuilder<LoginCubit, LoginState>(
                                   builder: (context, loginState) {
                                     return InkWell(
-                                      // 4. Using LoginCubit function
                                       onTap: () => context.read<LoginCubit>().togglePassword(),
                                       child: Container(
                                         height: 45, 
@@ -187,11 +186,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                             // SIGN IN BUTTON
                             BlocConsumer<LoginCubit, LoginState>(
-                              listener: (context, loginState) {
+                              listener: (context, loginState) async { 
                                 if (loginState is LoginSuccess) {
-                                   context.read<GlobalAuthCubit>().setAuthenticated(); 
-                                  _showMsg('Login Successful', isError: false);
-                                  context.go('/dashboard'); 
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final String name = prefs.getString('user_name') ?? "User";
+                                  
+                                  if (mounted) {
+                                    // Notify the global auth cubit
+                                    context.read<GlobalAuthCubit>().setAuthenticated(name); 
+                                    _showMsg('Login Successful', isError: false);
+                                    //  AppRouter handles the transition to /dashboard automatically
+                                  }
                                 }
                                 if (loginState is LoginError) {
                                    _showMsg(loginState.message);
@@ -207,7 +212,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         _showMsg("error".tr());
                                         return;
                                       }
-                                      // 6. Call LoginCubit method
                                       context.read<LoginCubit>().login(
                                         _emailController.text.trim(),
                                         _passwordController.text,
@@ -236,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               children: [
                                 Text("no_account".tr(), style: const TextStyle(color: AppColors.greyText)),
                                 TextButton(
-                                  onPressed: () => context.push('/register'),
+                                  onPressed: () => context.push(RouteNames.register),
                                   child: Text(
                                     "register".tr(),
                                     style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
@@ -263,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.cardWhite.withOpacity(0.8),
+          color: AppColors.cardWhite.withAlpha(204),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.greyBorder),
         ),

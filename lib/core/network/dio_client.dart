@@ -6,7 +6,7 @@ class DioClient {
   DioClient(this._dio) {
     _dio.options = BaseOptions(
      
-      baseUrl: 'http://192.168.68.111/paperless_api/', 
+      baseUrl: 'http://192.168.68.112/paperless_api/', 
       connectTimeout: const Duration(seconds: 20),
       receiveTimeout: const Duration(seconds: 20),
       contentType: 'application/json',

@@ -8,12 +8,10 @@ class RegisterCubit extends Cubit<RegisterState> {
 
   RegisterCubit(this.authRepository) : super(const RegisterInitial());
 
-  // Logic: Takes only the data collected from  RegisterScreen UI
   Future<void> register(Map<String, dynamic> userData) async {
     emit(RegisterLoading(isPasswordVisible: state.isPasswordVisible));
 
     try {
-      // Mapping only the specific fields present in  Registration Form
       final userModel = UserModel(
         name: userData['registrantName'],
         email: userData['email'],
@@ -28,20 +26,24 @@ class RegisterCubit extends Cubit<RegisterState> {
         tradeLicensePath: userData['tradeLicensePath'],
       );
 
-      // Sending the cleaned model to the repository
       final response = await authRepository.register(userModel);
       
-      if (response.data['status'] == 'success') {
+      // 200 means OK, 201 means Created (standard for successful registration)
+      if ((response.statusCode == 200 || response.statusCode == 201) && 
+          response.data['status'] == 'success') {
         emit(const RegisterSuccess());
       } else {
+        // Handle cases where server is online but returns an error (e.g., 400 Bad Request)
+        final errorMessage = response.data['message'] ?? "Registration Failed";
         emit(RegisterError(
-          response.data['message'] ?? "Registration Failed", 
+          errorMessage, 
           isPasswordVisible: state.isPasswordVisible,
         ));
       }
     } catch (e) {
+      // Handles Network timeout, 404, or 500 errors caught by Dio
       emit(RegisterError(
-        "Connection Error: Check server IP", 
+        "Connection Error: Please check your server or network", 
         isPasswordVisible: state.isPasswordVisible,
       ));
     }
