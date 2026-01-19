@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Add this
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gap/gap.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
-// Import the Global Auth files
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_state.dart';
 

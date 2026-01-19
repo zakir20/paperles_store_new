@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
+import '../models/user_model.dart'; 
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -14,10 +15,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Response> register(Map<String, dynamic> userData) async {
-    return await remoteDataSource.registerUser(userData);
+  Future<Response> register(UserModel user) async {
+    //  Pass the whole model to the data source
+    return await remoteDataSource.registerUser(user);
   }
-
 
   @override
   Future<bool> checkAuthStatus() async {

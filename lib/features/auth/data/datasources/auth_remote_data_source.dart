@@ -1,54 +1,53 @@
 import 'package:dio/dio.dart';
 import 'package:paperless_store_upd/core/network/network_executor.dart'; 
+import '../models/user_model.dart'; 
 
 class AuthRemoteDataSource {
   final NetworkExecutor _executor; 
 
   AuthRemoteDataSource(this._executor);
 
-  Future<Response> registerUser(Map<String, dynamic> params) async {
-    Map<String, dynamic> textData = {
-      "name": params['registrantName'],
-      "shop_name": params['shopName'],
-      "proprietor_name": params['proprietorName'],
-      "phone": params['phoneNumber'],
-      "email": params['email'],
-      "shop_type": params['shopType'],
-      "address": params['address'],
-      "trade_license": params['tradeLicense'],
-      "password": params['password'],
-      "source": "app", 
-    };
+  // Register User
+  // Now accepts [UserModel] instead of a raw Map
+  Future<Response> registerUser(UserModel user) async {
+    // Get the clean text data using the toJson method from the model
+    // This handles the keys like 'name', 'shop_name', etc.
+    final Map<String, dynamic> textData = user.toJson();
 
-    FormData formData = FormData.fromMap(textData);
+    //  Create the FormData for Multipart support
+    final FormData formData = FormData.fromMap(textData);
 
-    if (params['profileImagePath'] != null && params['profileImagePath'].toString().isNotEmpty) {
+    //  Add images using the paths stored in the model
+    if (user.profileImagePath != null && user.profileImagePath!.isNotEmpty) {
       formData.files.add(MapEntry(
         "file_owner_pic", 
-        await MultipartFile.fromFile(params['profileImagePath']),
+        await MultipartFile.fromFile(user.profileImagePath!),
       ));
     }
     
-    if (params['tradeLicensePath'] != null && params['tradeLicensePath'].toString().isNotEmpty) {
+    if (user.tradeLicensePath != null && user.tradeLicensePath!.isNotEmpty) {
       formData.files.add(MapEntry(
         "file_trade_license", 
-        await MultipartFile.fromFile(params['tradeLicensePath']),
+        await MultipartFile.fromFile(user.tradeLicensePath!),
       ));
     }
 
+    // 5. Execute via the NetworkExecutor
     return await _executor.executePost(
       endpoint: 'auth/register.php', 
       data: formData,
     );
   }
 
+  // Login User
   Future<Response> loginUser(String email, String password) async {
-    Map<String, dynamic> loginData = {
+    final Map<String, dynamic> loginData = {
       "email": email,
       "password": password,
       "lang": "en", 
     };
 
+    //  FormData for login as well to keep $_POST consistent in PHP
     return await _executor.executePost(
       endpoint: 'auth/login.php', 
       data: FormData.fromMap(loginData),
