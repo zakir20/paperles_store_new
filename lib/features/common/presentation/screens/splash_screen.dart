@@ -9,6 +9,7 @@ import 'package:paperless_store_upd/core/theme/app_colors.dart';
 import 'package:paperless_store_upd/features/auth/presentation/screens/login_screen.dart';
 import 'package:paperless_store_upd/features/common/presentation/widgets/center_circular_progress_indicator.dart';
 import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:paperless_store_upd/injection/injection_container.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,12 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _startAppFlow() async {
-    await context.read<GlobalAuthCubit>().checkAuthStatus();
     await Future.delayed(const Duration(seconds: 2));
-
     if (mounted) {
-      final authState = context.read<GlobalAuthCubit>().state;
-
+      final authState = sl<GlobalAuthCubit>().checkAuthStatus();
+      print('authState');
+      print(authState.toString());
       if (authState is Authenticated) {
         AppRouter.go(context, DashboardScreen.route);
       } else {
@@ -49,17 +49,20 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(
-                Icons.store,
-                color: Colors.white,
-                size: 60,
+            const Spacer(),
+            Center(
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.store,
+                  color: Colors.white,
+                  size: 60,
+                ),
               ),
             ),
             const Gap(20),
