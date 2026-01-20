@@ -28,7 +28,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (response.statusCode == 200 && response.data['status'] == 'success') {
-        return UserModel.fromJson(response.data['data']);
+        final user = UserModel.fromJson(response.data['data']);
+        await saveSession(user.name ?? 'User');
+        return user;
       }
 
       throw Failure(

@@ -26,7 +26,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _loginCubit = LoginCubit(sl());
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   OutlineInputBorder _border({Color? color}) {
     return OutlineInputBorder(
@@ -35,50 +41,52 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onLoginPressed() {
+  void _onLoginPressed(BuildContext context) {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      showToast(context, message: "error".tr());
+      showToast(context, message: "fill_all_fields".tr()); 
       return;
     }
 
-    _loginCubit.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    context.read<LoginCubit>().login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      body: BlocConsumer<LoginCubit, LoginState>(
-        bloc: _loginCubit,
-        listener: _listener,
-        builder: (context, state) {
-          return SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Column(
-                  children: [
-                    const Gap(10),
-                    const Align(
-                      alignment: Alignment.centerRight,
-                      child: LanguageSelectorWidget(),
-                    ),
-                    const Gap(50),
-                    _buildCard(state),
-                  ],
+    return BlocProvider<LoginCubit>(
+      create: (context) => sl<LoginCubit>(),
+      child: Scaffold(
+        backgroundColor: AppColors.scaffoldBg,
+        body: BlocConsumer<LoginCubit, LoginState>(
+          listener: _listener,
+          builder: (context, state) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    children: [
+                      const Gap(10),
+                      const Align(
+                        alignment: Alignment.centerRight,
+                        child: LanguageSelectorWidget(),
+                      ),
+                      const Gap(50),
+                      _buildCard(context, state),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildCard(LoginState state) {
+  Widget _buildCard(BuildContext context, LoginState state) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -108,9 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
           const Gap(30),
           _buildEmailField(),
           const Gap(15),
-          _buildPasswordField(),
+          _buildPasswordField(context, state), // Pass state here
           const Gap(20),
-          _buildLoginButton(state),
+          _buildLoginButton(context, state),
           const Gap(20),
           _buildRegisterRow(),
         ],
@@ -121,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
+      style: const TextStyle(color: AppColors.black),
       decoration: InputDecoration(
         labelText: "email".tr(),
         hintText: "enter_email".tr(),
@@ -132,14 +141,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(BuildContext context, LoginState state) {
     return TextFormField(
       controller: _passwordController,
-      obscureText: true,
+      obscureText: !state.isPasswordVisible,
+      style: const TextStyle(color: AppColors.black),
       decoration: InputDecoration(
         labelText: "password".tr(),
         hintText: "enter_password".tr(),
         prefixIcon: const Icon(Icons.lock_outline, size: 20),
+        suffixIcon: IconButton(
+          icon: Icon(
+            state.isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: AppColors.greyText,
+          ),
+          onPressed: () => context.read<LoginCubit>().togglePassword(),
+        ),
         border: _border(),
         enabledBorder: _border(),
         focusedBorder: _border(color: AppColors.primary),
@@ -147,14 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton(LoginState state) {
+  Widget _buildLoginButton(BuildContext context, LoginState state) {
     final isLoading = state is LoginInLoadingState;
 
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: isLoading ? null : _onLoginPressed,
+        onPressed: isLoading ? null : () => _onLoginPressed(context),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
@@ -200,25 +217,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _listener(BuildContext context, LoginState state) {
     if (state is LoginSuccessState) {
-      context.read<GlobalAuthCubit>().setAuthenticated(state.user.name);
+      context.read<GlobalAuthCubit>().setAuthenticated(state.user.name ?? "User");
 
       showToast(
         context,
         message: "login_success".tr(),
         isError: false,
       );
+      
     }
 
     if (state is LoginErrorState) {
       showToast(context, message: state.message);
     }
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _loginCubit.close();
-    super.dispose();
   }
 }
