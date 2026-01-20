@@ -1,61 +1,70 @@
 class UserModel {
-  final String? name;
-  final String? email;
-  final String? phone;
-  final String? password;
-  final String? shopName;
-  final String? proprietorName;
-  final String? shopType;
-  final String? address;
-  final String? tradeLicense;
-  final String? profileImagePath;
-  final String? tradeLicensePath;
+  final int userId;
+  final String name;
+  final String email;
+  final String phone;
+  final String role;
+  final int shopId;
+  final String shopName;
+  final String shopCategory;
+  final String shopLogo;
+  final String accessToken;
+  final String userProfilePic;
 
   UserModel({
-    this.name,
-    this.email,
-    this.phone,
-    this.password,
-    this.shopName,
-    this.proprietorName,
-    this.shopType,
-    this.address,
-    this.tradeLicense,
-    this.profileImagePath,
-    this.tradeLicensePath,
+    required this.userId,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.role,
+    required this.shopId,
+    required this.shopName,
+    required this.shopCategory,
+    required this.shopLogo,
+    required this.accessToken,
+    required this.userProfilePic,
   });
 
-  //  fromJson: Converts PHP JSON response into UserModel Object
-  // Use this when  fetch user profile data from the database
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(Map<String, dynamic>? json) {
     return UserModel(
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      shopName: json['shop_name'],
-      proprietorName: json['proprietor_name'],
-      shopType: json['shop_type'],
-      address: json['address'],
-      tradeLicense: json['trade_license'],
-      profileImagePath: json['profile_pic'], 
-      tradeLicensePath: json['trade_license_pic'],
+      userId: _parseInt(json?['user_id']),
+      name: json?['name']?.toString() ?? '',
+      email: json?['email']?.toString() ?? '',
+      phone: json?['phone']?.toString() ?? '',
+      role: json?['role']?.toString() ?? '',
+      shopId: _parseInt(json?['shop_id']),
+      shopName: json?['shop_name']?.toString() ?? '',
+      shopCategory: json?['shop_category']?.toString() ?? '',
+      shopLogo: json?['shop_logo_mobile']?.toString() ?? '',
+      accessToken: json?['access_token']?.toString() ?? '',
+      userProfilePic: json?['profile_pic_mobile']?.toString() ?? '',
     );
   }
 
-  //  toJson: Converts UserModel into a Map for the POST request
-  // These KEYS match  PHP $_POST['key'] 
   Map<String, dynamic> toJson() {
     return {
+      'user_id': userId,
       'name': name,
       'email': email,
       'phone': phone,
-      'password': password,
+      'role': role,
+      'shop_id': shopId,
       'shop_name': shopName,
-      'proprietor_name': proprietorName,
-      'shop_type': shopType,
-      'address': address,
-      'trade_license': tradeLicense,
-      'source': 'app', 
+      'shop_category': shopCategory,
+      'shop_logo_mobile': shopLogo,
+      'access_token': accessToken,
+      'profile_pic_mobile': userProfilePic,
     };
+  }
+
+  @override
+  String toString() {
+    return 'UserData(userId: $userId, name: $name, email: $email, phone: $phone, role: $role, shopId: $shopId, shopName: $shopName, shopCategory: $shopCategory, shopLogo: $shopLogo, accessToken: $accessToken)';
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    return int.tryParse(value.toString()) ?? 0;
   }
 }

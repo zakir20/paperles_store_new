@@ -1,29 +1,35 @@
 import 'package:equatable/equatable.dart';
+import 'package:paperless_store_upd/features/auth/data/models/user_model.dart';
 
 abstract class LoginState extends Equatable {
-  final bool isPasswordVisible;
-  const LoginState({this.isPasswordVisible = false});
-
   @override
-  List<Object?> get props => [isPasswordVisible];
+  List<Object?> get props => [];
 }
 
-class LoginInitial extends LoginState {
-  const LoginInitial({super.isPasswordVisible});
+class LoginInitialState extends LoginState {
+  @override
+  List<Object?> get props => [];
 }
 
-class LoginLoading extends LoginState {
-  const LoginLoading({super.isPasswordVisible});
+class LoginInLoadingState extends LoginState {
+  @override
+  List<Object?> get props => [];
 }
 
-class LoginSuccess extends LoginState {
-  const LoginSuccess({super.isPasswordVisible});
-}
-
-class LoginError extends LoginState {
+class LoginErrorState extends LoginState {
   final String message;
-  const LoginError(this.message, {super.isPasswordVisible});
+
+  LoginErrorState(this.message);
 
   @override
-  List<Object?> get props => [message, isPasswordVisible];
+  List<Object?> get props => [];
+}
+
+class LoginSuccessState extends LoginState {
+  final UserModel user;
+
+  LoginSuccessState(this.user);
+
+  @override
+  List<Object?> get props => [];
 }

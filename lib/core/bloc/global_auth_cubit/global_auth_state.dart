@@ -2,12 +2,11 @@ import 'package:equatable/equatable.dart';
 
 abstract class GlobalAuthState extends Equatable {
   const GlobalAuthState();
-  
+
   @override
   List<Object?> get props => [];
 }
 
-//  Authenticated state now carries the user's name
 class Authenticated extends GlobalAuthState {
   final String userName;
 
@@ -19,4 +18,7 @@ class Authenticated extends GlobalAuthState {
 
 class Unauthenticated extends GlobalAuthState {
   const Unauthenticated();
+
+  @override
+  List<Object?> get props => [];
 }

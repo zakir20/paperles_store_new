@@ -1,21 +1,48 @@
-import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:paperless_store_upd/core/network/api_failure.dart';
+import 'package:paperless_store_upd/core/network/network_executor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_remote_data_source.dart';
 import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource remoteDataSource;
-  AuthRepositoryImpl(this.remoteDataSource);
+  final NetworkExecutor networkExecutor;
+
+  AuthRepositoryImpl(this.networkExecutor);
+
+  final String _loginPath = 'auth/login.php';
 
   @override
-  Future<Response> login(String email, String password) async {
-    return await remoteDataSource.loginUser(email, password);
-  }
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await networkExecutor.executePost(
+        endpoint: _loginPath,
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
 
-  @override
-  Future<Response> register(UserModel user) async {
-    return await remoteDataSource.registerUser(user);
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return UserModel.fromJson(response.data['data']);
+      }
+
+      throw Failure(
+        response.data?['message']?.toString() ?? 'Login failed',
+      );
+    } catch (e, stackTrace) {
+      debugPrintStack(label: e.toString(), stackTrace: stackTrace);
+
+      if (e is Failure) {
+        rethrow;
+      }
+
+      throw Failure(e.toString());
+    }
   }
 
   @override
@@ -42,5 +69,4 @@ class AuthRepositoryImpl implements AuthRepository {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('user_name');
   }
-  
 }

@@ -5,15 +5,13 @@ class DioClient {
 
   DioClient(this._dio) {
     _dio.options = BaseOptions(
-     
-      baseUrl: 'http://192.168.68.112/paperless_api/', 
+      baseUrl: 'https://travelbangla.com/paperles_store/api/v1/',
       connectTimeout: const Duration(seconds: 20),
       receiveTimeout: const Duration(seconds: 20),
       contentType: 'application/json',
       responseType: ResponseType.json,
     );
 
-  
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,

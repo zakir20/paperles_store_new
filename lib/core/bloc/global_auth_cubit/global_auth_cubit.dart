@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paperless_store_upd/features/auth/domain/repositories/auth_repository.dart';
+
 import 'global_auth_state.dart';
 
 class GlobalAuthCubit extends Cubit<GlobalAuthState> {
   final AuthRepository authRepository;
 
-  GlobalAuthCubit(this.authRepository) : super(Unauthenticated());
+  GlobalAuthCubit(this.authRepository) : super(const Unauthenticated());
 
   Future<void> checkAuthStatus() async {
     final bool isLoggedIn = await authRepository.checkAuthStatus();
@@ -24,6 +25,6 @@ class GlobalAuthCubit extends Cubit<GlobalAuthState> {
 
   Future<void> logout() async {
     await authRepository.clearSession();
-    emit(Unauthenticated());
+    emit(const Unauthenticated());
   }
 }
