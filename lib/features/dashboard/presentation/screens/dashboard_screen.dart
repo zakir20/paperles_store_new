@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
-import 'package:paperless_store_upd/core/bloc/global_auth_state.dart';
+import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
