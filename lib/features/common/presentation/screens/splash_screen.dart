@@ -29,10 +29,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _startAppFlow() async {
     await Future.delayed(const Duration(seconds: 2));
+
     if (mounted) {
-      final authState = sl<GlobalAuthCubit>().checkAuthStatus();
-      print('authState');
-      print(authState.toString());
+      await context.read<GlobalAuthCubit>().checkAuthStatus();
+      final authState = context.read<GlobalAuthCubit>().state;
+      print('$authState');
       if (authState is Authenticated) {
         AppRouter.go(context, DashboardScreen.route);
       } else {
@@ -40,7 +41,6 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
