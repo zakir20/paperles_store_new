@@ -1,3 +1,4 @@
+import 'dart:convert'; 
 import 'package:flutter/foundation.dart';
 import 'package:paperless_store_upd/core/network/api_failure.dart';
 import 'package:paperless_store_upd/core/network/network_executor.dart';
@@ -29,7 +30,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (response.statusCode == 200 && response.data['status'] == 'success') {
         final user = UserModel.fromJson(response.data['data']);
-        await saveSession(user.name);
+        
+        await saveSession(user); 
+        
         return user;
       }
 
@@ -48,9 +51,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> saveSession(String name) async {
+  Future<void> saveSession(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_name', name);
+    
+    final String userJson = jsonEncode(user.toJson());
+    
+    await prefs.setString('user_data', userJson);
     await prefs.setBool('is_logged_in', true);
   }
 
@@ -67,8 +73,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<String?> getUserName() async {
+  Future<UserModel?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('user_name');
+    final String? userJson = prefs.getString('user_data');
+    
+    if (userJson != null) {
+      return UserModel.fromJson(jsonDecode(userJson));
+    }
+    return null;
   }
 }

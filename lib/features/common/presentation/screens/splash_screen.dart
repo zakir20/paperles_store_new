@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
@@ -29,13 +28,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _startAppFlow() async {
     await Future.delayed(const Duration(seconds: 2));
+
     if (mounted) {
-      final authState = sl<GlobalAuthCubit>().checkAuthStatus();
-      print('authState');
-      print(authState.toString());
-      if (authState is Authenticated) {
+      await sl<GlobalAuthCubit>().checkAuthStatus();
+      final authState = sl<GlobalAuthCubit>().state;
+      if (authState is Authenticated && mounted) {
         AppRouter.go(context, DashboardScreen.route);
-      } else {
+      } else if (mounted) {
         AppRouter.go(context, LoginScreen.route);
       }
     }

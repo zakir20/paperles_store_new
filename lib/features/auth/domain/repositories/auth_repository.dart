@@ -1,16 +1,15 @@
 import '../../data/models/user_model.dart';
+import 'package:dio/dio.dart';
 
 abstract class AuthRepository {
-  Future<UserModel> login({
-    required String email,
-    required String password,
-  });
+  Future<UserModel> login({ required String email, required String password});
+  // Future<Response> register(UserModel user);
+  
+  Future<void> saveSession(UserModel user); 
+  Future<UserModel?> getUser(); 
 
   Future<bool> checkAuthStatus();
 
-  Future<void> saveSession(String name);
-
   Future<void> clearSession();
 
-  Future<String?> getUserName();
 }

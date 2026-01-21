@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paperless_store_upd/features/auth/domain/repositories/auth_repository.dart';
+import '../../../../features/auth/data/models/user_model.dart'; 
 
 import 'global_auth_state.dart';
 
@@ -9,16 +10,17 @@ class GlobalAuthCubit extends Cubit<GlobalAuthState> {
   GlobalAuthCubit(this.authRepository) : super(const Unauthenticated());
 
   Future<void> checkAuthStatus() async {
-    final name = await authRepository.getUserName();
-    if (name != null && name.isNotEmpty) {
-      emit(Authenticated(userName: name));
+    final user = await authRepository.getUser();
+    
+    if (user != null) {
+      emit(Authenticated(user: user));
     } else {
       emit(const Unauthenticated());
     }
   }
 
-  void setAuthenticated(String name) {
-    emit(Authenticated(userName: name));
+  void setAuthenticated(UserModel user) {
+    emit(Authenticated(user: user));
   }
 
   Future<void> logout() async {

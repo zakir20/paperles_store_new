@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
+import 'package:paperless_store_upd/injection/injection_container.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -24,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, authState) {
         String userName = "User";
         if (authState is Authenticated) {
-          userName = authState.userName;
+          userName = authState.user.name;
         }
 
         return Scaffold(
@@ -44,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.redAccent),
                 onPressed: () {
-                  context.read<GlobalAuthCubit>().logout();
+                  sl<GlobalAuthCubit>().logout();
                 },
               ),
             ],

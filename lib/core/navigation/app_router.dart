@@ -1,10 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
+import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
+import 'package:paperless_store_upd/core/utils/go_router_refresh_stream.dart';
+import 'package:paperless_store_upd/injection/injection_container.dart';
 import 'package:paperless_store_upd/features/auth/auth_route.dart';
+import 'package:paperless_store_upd/features/auth/presentation/screens/login_screen.dart';
 import 'package:paperless_store_upd/features/common/common_route.dart';
 import 'package:paperless_store_upd/features/common/presentation/screens/splash_screen.dart';
 import 'package:paperless_store_upd/features/dashboard/dashboard_route.dart';
+import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart';
 
 class AppRouter {
   AppRouter._();
@@ -17,6 +23,7 @@ class AppRouter {
     navigatorKey: navigatorKey,
     initialLocation: SplashScreen.route,
     debugLogDiagnostics: kDebugMode,
+    refreshListenable: GoRouterRefreshStream(sl<GlobalAuthCubit>().stream),
     routes: [
       ...CommonRoute.commonRoutes,
       ...DashboardRoute.dashBoardRoutes,
@@ -26,6 +33,22 @@ class AppRouter {
       return ErrorWidget(state.error.toString());
     },
     redirect: (context, state) {
+      final authState = sl<GlobalAuthCubit>().state;
+
+      final bool isLoggingIn = state.matchedLocation == LoginScreen.route;
+      final bool isSplashing = state.matchedLocation == SplashScreen.route;
+
+      if (isSplashing) return null;
+
+      if (authState is Unauthenticated) {
+        return (isLoggingIn) ? null : LoginScreen.route;
+      }
+      if (authState is Authenticated) {
+        if (isLoggingIn || isSplashing) {
+          return DashboardScreen.route;
+        }
+      }
+
       return null;
     },
   );

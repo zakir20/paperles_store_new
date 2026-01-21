@@ -10,8 +10,8 @@ import 'package:paperless_store_upd/core/theme/app_colors.dart';
 import 'package:paperless_store_upd/core/utils/show_toast_helper.dart';
 import 'package:paperless_store_upd/features/common/presentation/widgets/center_circular_progress_indicator.dart';
 import 'package:paperless_store_upd/features/common/presentation/widgets/language_selector_widget.dart';
-import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:paperless_store_upd/injection/injection_container.dart';
+import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart';
 
 import '../bloc/login_cubit.dart';
 import '../bloc/login_state.dart';
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const Gap(30),
           _buildEmailField(),
           const Gap(15),
-          _buildPasswordField(context, state), // Pass state here
+          _buildPasswordField(context, state), 
           const Gap(20),
           _buildLoginButton(context, state),
           const Gap(20),
@@ -144,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildPasswordField(BuildContext context, LoginState state) {
     return TextFormField(
       controller: _passwordController,
+      obscureText: true, 
       style: const TextStyle(color: AppColors.black),
       decoration: InputDecoration(
         labelText: "password".tr(),
@@ -209,7 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _listener(BuildContext context, LoginState state) {
     if (state is LoginSuccessState) {
-      sl<GlobalAuthCubit>().setAuthenticated(state.user.name);
+      sl<GlobalAuthCubit>().setAuthenticated(state.user);
+
       AppRouter.go(context, DashboardScreen.route);
       showToast(
         context,
