@@ -11,6 +11,7 @@ import 'package:paperless_store_upd/features/common/common_route.dart';
 import 'package:paperless_store_upd/features/common/presentation/screens/splash_screen.dart';
 import 'package:paperless_store_upd/features/dashboard/dashboard_route.dart';
 import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart'; 
+import 'package:paperless_store_upd/features/products/products_route.dart'; 
 
 class AppRouter {
   AppRouter._();
@@ -30,6 +31,7 @@ class AppRouter {
       ...CommonRoute.commonRoutes,
       ...DashboardRoute.dashBoardRoutes,
       ...AuthRoute.authRoutes,
+      ...ProductsRoute.productsRoutes, 
     ],
     errorBuilder: (context, state) {
       return ErrorWidget(state.error.toString());

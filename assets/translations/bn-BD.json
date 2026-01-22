@@ -46,5 +46,7 @@
   "error": "ত্রুটি",
   "success": "সফল",
   "sign_in": "সাইন ইন",
-  "paperless_store": "পেপারলেস স্টোর"
+  "paperless_store": "পেপারলেস স্টোর",
+  "product_list": "পণ্যের তালিকা",
+  "no_products": "কোনো পণ্য পাওয়া যায়নি"
 }

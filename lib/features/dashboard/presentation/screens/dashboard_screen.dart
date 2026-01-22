@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart'; // Add this for navigation
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
+import 'package:paperless_store_upd/features/products/products_route.dart'; // Import the route
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -147,16 +149,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             selectedItemColor: AppColors.primary,
             unselectedItemColor: AppColors.greyText,
             type: BottomNavigationBarType.fixed,
-            onTap: (index) => setState(() => _selectedIndex = index),
-            items: const [
+            onTap: (index) {
+              setState(() => _selectedIndex = index);
+              // Handle navigation to Product List
+              if (index == 1) {
+                context.push(ProductsRoute.productList);
+              }
+            },
+            items: [
               BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard), label: 'Home'),
+                  icon: const Icon(Icons.dashboard), label: 'home'.tr()),
+              // UPDATED: Replaced Inventory with Product
               BottomNavigationBarItem(
-                  icon: Icon(Icons.inventory), label: 'Inventory'),
+                  icon: const Icon(Icons.inventory_2), label: 'products'.tr()),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart), label: 'Sales'),
+                  icon: const Icon(Icons.shopping_cart), label: 'sales'.tr()),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Profile'),
+                  icon: const Icon(Icons.person), label: 'profile'.tr()),
             ],
           ),
         );
