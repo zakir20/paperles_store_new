@@ -47,6 +47,11 @@
   "enter_your_email": "Enter Your Email",
   "sign_in": "Sign In",
   "paperless_store": "Paperless Store",
-   "product_list": "Product List",
-  "no_products": "No products available"
+  "home": "Home",
+  "products": "Products",
+  "sales": "Sales",
+  "profile": "Profile",
+  "product_list": "Product List",
+  "no_products": "No products found",
+  "search_hint": "Search products..."
 }
