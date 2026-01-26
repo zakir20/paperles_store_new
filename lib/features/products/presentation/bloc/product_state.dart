@@ -9,12 +9,17 @@ abstract class ProductState extends Equatable {
 
 class ProductInitial extends ProductState {}
 class ProductLoading extends ProductState {}
+
 class ProductLoaded extends ProductState {
   final List<ProductModel> products;
-  const ProductLoaded(this.products);
+  final bool hasReachedMax; 
+
+  const ProductLoaded({required this.products, required this.hasReachedMax});
+
   @override
-  List<Object?> get props => [products];
+  List<Object?> get props => [products, hasReachedMax];
 }
+
 class ProductError extends ProductState {
   final String message;
   const ProductError(this.message);

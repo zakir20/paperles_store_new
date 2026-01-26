@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart'; // Add this for navigation
+import 'package:go_router/go_router.dart'; 
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
-import 'package:paperless_store_upd/features/products/products_route.dart'; // Import the route
+import 'package:paperless_store_upd/features/products/products_route.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
