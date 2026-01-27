@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
 import '../../data/models/product_model.dart';
@@ -10,6 +9,7 @@ import '../bloc/product_state.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
+  static String route = '/product-list';
 
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
@@ -25,8 +25,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
-    
     context.read<ProductCubit>().loadProducts();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<ProductCubit>().loadMoreProducts();
+    }
   }
 
   @override
@@ -51,28 +57,34 @@ class _ProductListScreenState extends State<ProductListScreen> {
             child: BlocBuilder<ProductCubit, ProductState>(
               builder: (context, state) {
                 if (state is ProductLoading) return const Center(child: CircularProgressIndicator());
+                if (state is ProductError) return Center(child: Text(state.message));
 
                 if (state is ProductLoaded) {
+                  if (state.products.isEmpty) return const Center(child: Text("No Data Found"));
+
                   return ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(12),
-                    itemCount: state.products.length,
-                    itemBuilder: (context, index) => _buildProductCard(state.products[index]),
+                    itemCount: state.hasReachedMax ? state.products.length : state.products.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index >= state.products.length) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(15), child: CircularProgressIndicator()));
+                      }
+                      return _buildProductCard(state.products[index]);
+                    },
                   );
                 }
-                return const Center(child: Text("No Data"));
+                return const SizedBox.shrink();
               },
             ),
           ),
-         
-          _buildPaginationBar(context),
-          const Gap(10),
         ],
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
+    final cubit = context.read<ProductCubit>();
     return Container(
       padding: const EdgeInsets.all(12),
       color: AppColors.cardWhite,
@@ -80,8 +92,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         children: [
           Expanded(
             child: TextFormField(
-              style: const TextStyle(color: AppColors.black),
-              onChanged: (val) => context.read<ProductCubit>().applySearchAndFilter(query: val),
+              onChanged: (val) => cubit.applySearchAndFilter(query: val),
               decoration: InputDecoration(
                 hintText: "search_hint".tr(),
                 prefixIcon: const Icon(Icons.search, color: AppColors.primary),
@@ -92,14 +103,19 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
           const Gap(10),
           Container(
-            width: 120,
+            width: 110,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(color: AppColors.scaffoldBg, borderRadius: BorderRadius.circular(10)),
             child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: context.watch<ProductCubit>().currentCategory,
-                isExpanded: true,
-                items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 12, color: AppColors.black)))).toList(),
-                onChanged: (val) => context.read<ProductCubit>().applySearchAndFilter(category: val),
+              child: BlocBuilder<ProductCubit, ProductState>(
+                builder: (context, state) {
+                  return DropdownButton<String>(
+                    value: cubit.currentCategory,
+                    isExpanded: true,
+                    items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 11)))).toList(),
+                    onChanged: (val) => cubit.applySearchAndFilter(category: val),
+                  );
+                },
               ),
             ),
           ),
@@ -113,32 +129,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       color: AppColors.cardWhite,
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        title: Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.black)),
-        subtitle: Text(product.category, style: const TextStyle(color: AppColors.greyText)),
+        title: Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(product.category),
         trailing: Text("TK ${product.price.toStringAsFixed(0)}", style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
       ),
-    );
-  }
-
-  Widget _buildPaginationBar(BuildContext context) {
-    final cubit = context.watch<ProductCubit>();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _pageBtn("<", cubit.currentPage > 1, () => cubit.goToPage(cubit.currentPage - 1)),
-        const Gap(10),
-        Text("Page ${cubit.currentPage} of ${cubit.totalPages}", style: const TextStyle(color: AppColors.black, fontWeight: FontWeight.bold)),
-        const Gap(10),
-        _pageBtn(">", cubit.currentPage < cubit.totalPages, () => cubit.goToPage(cubit.currentPage + 1)),
-      ],
-    );
-  }
-
-  Widget _pageBtn(String label, bool enabled, VoidCallback onTap) {
-    return ElevatedButton(
-      onPressed: enabled ? onTap : null,
-      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size(40, 40)),
-      child: Text(label, style: const TextStyle(color: Colors.white)),
     );
   }
 }

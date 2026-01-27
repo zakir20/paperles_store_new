@@ -2,11 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart'; 
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_cubit.dart';
 import 'package:paperless_store_upd/core/bloc/global_auth_cubit/global_auth_state.dart';
 import 'package:paperless_store_upd/core/theme/app_colors.dart';
-import 'package:paperless_store_upd/features/products/products_route.dart'; 
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,7 +16,6 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                          'Sun'
+                          'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
                         ].map((day) {
                           return Column(
                             children: [
@@ -140,33 +131,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-                const Gap(80),
               ],
             ),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.greyText,
-            type: BottomNavigationBarType.fixed,
-            onTap: (index) {
-              setState(() => _selectedIndex = index);
-              // Handle navigation to Product List
-              if (index == 1) {
-                context.push(ProductsRoute.productList);
-              }
-            },
-            items: [
-              BottomNavigationBarItem(
-                  icon: const Icon(Icons.dashboard), label: 'home'.tr()),
-              // UPDATED: Replaced Inventory with Product
-              BottomNavigationBarItem(
-                  icon: const Icon(Icons.inventory_2), label: 'products'.tr()),
-              BottomNavigationBarItem(
-                  icon: const Icon(Icons.shopping_cart), label: 'sales'.tr()),
-              BottomNavigationBarItem(
-                  icon: const Icon(Icons.person), label: 'profile'.tr()),
-            ],
           ),
         );
       },

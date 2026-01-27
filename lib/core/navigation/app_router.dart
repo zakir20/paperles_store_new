@@ -12,6 +12,7 @@ import 'package:paperless_store_upd/features/common/presentation/screens/splash_
 import 'package:paperless_store_upd/features/dashboard/dashboard_route.dart';
 import 'package:paperless_store_upd/features/dashboard/presentation/screens/dashboard_screen.dart'; 
 import 'package:paperless_store_upd/features/products/products_route.dart'; 
+import 'package:paperless_store_upd/features/common/presentation/screens/main_wrapper.dart';
 
 class AppRouter {
   AppRouter._();
@@ -29,9 +30,37 @@ class AppRouter {
 
     routes: [
       ...CommonRoute.commonRoutes,
-      ...DashboardRoute.dashBoardRoutes,
       ...AuthRoute.authRoutes,
-      ...ProductsRoute.productsRoutes, 
+
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainWrapper(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: DashboardRoute.dashBoardRoutes,
+          ),
+          StatefulShellBranch(
+            routes: ProductsRoute.productsRoutes,
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/sales',
+                builder: (context, state) => const Scaffold(body: Center(child: Text("Sales Screen"))),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const Scaffold(body: Center(child: Text("Profile Screen"))),
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
     errorBuilder: (context, state) {
       return ErrorWidget(state.error.toString());

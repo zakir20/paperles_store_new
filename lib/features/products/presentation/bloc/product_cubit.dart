@@ -9,8 +9,9 @@ class ProductCubit extends Cubit<ProductState> {
 
   List<ProductModel> _allProducts = [];      
   List<ProductModel> _filteredMaster = [];  
-  final int _pageSize = 15; 
+  List<ProductModel> _displayedProducts = []; 
   
+  final int _pageSize = 15; 
   int currentPage = 1; 
   int totalPages = 1;
   String currentCategory = "All"; 
@@ -24,15 +25,18 @@ class ProductCubit extends Cubit<ProductState> {
       _allProducts = data.map((e) => ProductModel.fromJson(e)).toList();
       
       _filteredMaster = List.from(_allProducts);
+      _displayedProducts = []; 
+      currentPage = 1;
       _applyLogic(); 
     } catch (e) {
       emit(const ProductError("Failed to load products"));
     }
   }
 
-  void goToPage(int page) {
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
+  void loadMoreProducts() {
+    if (state is! ProductLoaded || currentPage >= totalPages) return;
+    
+    currentPage++;
     _applyLogic();
   }
 
@@ -47,6 +51,7 @@ class ProductCubit extends Cubit<ProductState> {
     }).toList();
 
     currentPage = 1; 
+    _displayedProducts = []; 
     _applyLogic();
   }
 
@@ -55,11 +60,13 @@ class ProductCubit extends Cubit<ProductState> {
     if (totalPages == 0) totalPages = 1;
 
     int startIndex = (currentPage - 1) * _pageSize;
-    final pageItems = _filteredMaster.skip(startIndex).take(_pageSize).toList();
+    final newItems = _filteredMaster.skip(startIndex).take(_pageSize).toList();
+
+    _displayedProducts.addAll(newItems);
 
     emit(ProductLoaded(
-      products: pageItems, 
-      hasReachedMax: currentPage == totalPages,
+      products: List.from(_displayedProducts), 
+      hasReachedMax: currentPage >= totalPages,
     ));
   }
 }
