@@ -8,6 +8,9 @@ import 'package:paperless_store_upd/features/auth/data/repositories/auth_reposit
 import 'package:paperless_store_upd/features/auth/domain/repositories/auth_repository.dart';
 import 'package:paperless_store_upd/features/products/presentation/bloc/product_cubit.dart';
 
+import 'package:paperless_store_upd/features/products/domain/repositories/product_repository.dart';
+import 'package:paperless_store_upd/features/products/data/repositories/product_repository_impl.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -17,5 +20,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LanguageCubit());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GlobalAuthCubit(sl()));
-  sl.registerFactory(() => ProductCubit());
+  
+  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl());
+  sl.registerFactory(() => ProductCubit(productRepository: sl()));
 }

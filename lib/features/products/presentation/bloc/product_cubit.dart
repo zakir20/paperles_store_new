@@ -1,11 +1,12 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/repositories/product_repository.dart';
 import '../../data/models/product_model.dart';
 import 'product_state.dart';
 
 class ProductCubit extends Cubit<ProductState> {
-  ProductCubit() : super(ProductInitial());
+  final ProductRepository productRepository;
+
+  ProductCubit({required this.productRepository}) : super(ProductInitial());
 
   List<ProductModel> _allProducts = [];      
   List<ProductModel> _filteredMaster = [];  
@@ -20,10 +21,7 @@ class ProductCubit extends Cubit<ProductState> {
   Future<void> loadProducts() async {
     emit(ProductLoading());
     try {
-      final String response = await rootBundle.loadString('assets/data/products.json');
-      final List<dynamic> data = json.decode(response);
-      _allProducts = data.map((e) => ProductModel.fromJson(e)).toList();
-      
+      _allProducts = await productRepository.getProducts();
       _filteredMaster = List.from(_allProducts);
       _displayedProducts = []; 
       currentPage = 1;
@@ -35,7 +33,6 @@ class ProductCubit extends Cubit<ProductState> {
 
   void loadMoreProducts() {
     if (state is! ProductLoaded || currentPage >= totalPages) return;
-    
     currentPage++;
     _applyLogic();
   }
